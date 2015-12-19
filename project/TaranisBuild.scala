@@ -21,7 +21,7 @@ object TaranisBuild extends Build {
 
     libraryDependencies ++= {
       import Dependencies._
-      meta ++ akka ++ tests
+      meta ++ akka ++ visual ++ tests
     },
 
     scalacOptions in (Compile, doc) ++= Seq(

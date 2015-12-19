@@ -20,6 +20,10 @@ object Dependencies {
     )
   }
 
+  val visual = Seq(
+    "org.scalanlp" %% "breeze-viz" % "0.11.2"
+  )
+
   val tests = Seq(
     "org.scalacheck" %% "scalacheck" % "1.12.5" % "test",
     "org.scalatest" %% "scalatest" % "2.2.4" % "test"
