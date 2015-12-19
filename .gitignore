@@ -16,3 +16,7 @@ project/plugins/project/
 Icon
 
 
+*.iml
+.idea/
+/out/
+.idea_modules/
