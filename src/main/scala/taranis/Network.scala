@@ -1,52 +1,74 @@
 package taranis
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import taranis.models.Node.Register
+import taranis.models.devices.Multimeter
+import taranis.models.devices.Multimeter.Records
 
 import scala.collection.mutable
+import scala.concurrent.Promise
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class Network(nodes: Set[ActorRef]) extends Actor with ActorLogging {
+class Network extends Actor with ActorLogging {
 
+  import Multimeter._
   import Network._
   import context._
 
-  override def receive: Receive = setup
+  private val nodes = mutable.Set.empty[ActorRef]
+
+  def receive: Receive = setup
 
   def setup: Receive = {
 
+    case Register(node) =>
+      nodes += node
+
     case Simulate(time, resolution) =>
       log.debug(s"starting simulation with resolution $resolution and time $time")
-      become(simulating(time.toNanos, resolution.toNanos))
-      remainingSimulationTime = time.toNanos
-      advanceTick(resolution.toNanos)
+
+      nodes.foreach(_ ! Calibrate(resolution.toMillis))
+      remainingSimulationTime = time.toMillis
+      tick(resolution.toMillis)
+
+      become(simulating(time.toMillis, resolution.toMillis))
+
+    case DeviceRequest(device, promise) =>
+      device ! Request(self)
+      become(requesting(promise))
 
   }
 
-  // ns
+  def requesting(promise: Promise[Records]): Receive = {
+
+    case Results(data) =>
+      promise.success(data)
+      become(setup)
+
+  }
+
   private var remainingSimulationTime = 0l
   private val ackTicks = mutable.Set.empty[ActorRef]
 
   def simulating(time: Long, resolution: Long): Receive = {
 
-    case AckTick(_) =>
+    case AckTick =>
       ackTicks += sender()
 
       if (ackTicks.size == nodes.size) {
-
         if (remainingSimulationTime > 0) {
-          advanceTick(resolution)
           log.debug(s"advance simulation $remainingSimulationTime")
+          tick(time - remainingSimulationTime)
         } else {
           log.debug(s"terminate simulation")
           become(setup)
         }
-
       }
 
   }
 
-  def advanceTick(step: Long): Unit = {
+  def tick(step: Long): Unit = {
     nodes.foreach(_ ! Tick(step))
     remainingSimulationTime -= step
   }
@@ -57,14 +79,17 @@ object Network {
 
   val defaultResolution = 1 millisecond
 
-  def props(nodes: Set[ActorRef]): Props =
-    Props(new Network(nodes))
+  def props: Props =
+    Props(new Network)
 
   final case class Simulate(time: Duration, resolution: Duration = defaultResolution)
 
-  // ns
-  final case class Tick(elapsedTime: Long)
+  final case class Tick(time: Long)
 
-  final case class AckTick(spikesSuccessors: Set[ActorRef])
+  case object AckTick
+
+  final case class Calibrate(resolution: Long)
+
+  final case class DeviceRequest(device: ActorRef, promise: Promise[Records])
 
 }
