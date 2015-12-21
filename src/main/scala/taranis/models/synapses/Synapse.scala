@@ -29,9 +29,9 @@ abstract class Synapse extends Node {
 
   }
 
-  def calibrate(resolution: Long): Unit = ()
+  def calibrate(resolution: Double): Unit = ()
 
-  def update(origin: Long): Unit = ()
+  def update(origin: Double): Unit = ()
 
   def handle(e: Spike): Unit = {
     postSynaptic ! bridged(e)

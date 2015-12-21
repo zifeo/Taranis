@@ -24,11 +24,25 @@ object TwoNeurons extends Simulation {
   connect(neuron1, neuron2, StaticSynapse.withParams(weight = weight, delay = delay))
   connect(multimeter, neuron2)
 
-  simulate(100 milliseconds, 1 milliseconds)
+  simulate(100 milliseconds, 1 millisecond)
 
   val records = data(multimeter)
   println(records)
   val (xs, ys) = records("Vm").unzip
-  Figure().subplot(0) += plot(xs, ys)
+
+  val f = Figure()
+  val p = f.subplot(0)
+  p.xlabel = "Time (ms)"
+  p.ylabel = "Membrane potential (mV)"
+  p.legend = true
+  p.title = "Membrane potential"
+  //p.xlim = (0, 100)
+  //p.ylim = (-70, -69.3)
+  p.setYAxisDecimalTickUnits()
+  p += plot(xs, ys, name = "Neuron 2")
+
+  terminate()
+  Thread.sleep(5000)
+  //cancelGUI(p)
 
 }

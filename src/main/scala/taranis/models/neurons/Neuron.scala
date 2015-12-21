@@ -40,9 +40,9 @@ abstract class Neuron extends Node {
 
   }
 
-  def calibrate(resolution: Long): Unit
+  def calibrate(resolution: Double): Unit
 
-  def update(origin: Long): Unit
+  def update(origin: Double): Unit
 
   def handle(e: Spike): Unit = {
     val weight = e.weight
@@ -50,7 +50,7 @@ abstract class Neuron extends Node {
     spikesValue += e.weight * e.multiplicity
   }
 
-  def records(instance: Neuron, origin: Long): Unit = {
+  def records(instance: Neuron, origin: Double): Unit = {
     recorders.foreach {
       case ((sender, label), extractor) =>
         sender ! Data(origin, label, extractor(instance))

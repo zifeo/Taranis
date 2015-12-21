@@ -1,8 +1,10 @@
 package taranis
 
 import java.util.logging.LogManager
+import javax.swing.SwingUtilities
 
-import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.actor.{PoisonPill, ActorRef, ActorSystem, Props}
+import breeze.plot.Plot
 import taranis.Network.{DeviceRequest, Simulate}
 import taranis.models.Node.Register
 import taranis.models.Parameters
@@ -53,6 +55,18 @@ abstract class Simulation extends App {
     val promise = Promise[Records]()
     net ! DeviceRequest(device, promise)
     Await.result(promise.future, Duration.Inf)
+  }
+
+  def terminate(): Unit = {
+    net ! PoisonPill
+    Await.result(system.terminate(), Duration.Inf)
+    println("terminate system")
+  }
+
+  def cancelGUI(onePlot: Plot): Unit = {
+    val window = SwingUtilities.windowForComponent(onePlot.panel)
+    window.setVisible(true)
+    window.dispose()
   }
 
 }

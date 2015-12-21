@@ -28,11 +28,11 @@ class Network extends Actor with ActorLogging {
     case Simulate(termination, time, resolution) =>
       log.debug(s"starting simulation with resolution $resolution and time $time")
 
-      nodes.foreach(_ ! Calibrate(resolution.toMillis))
-      remainingSimulationTime = time.toMillis
-      tick(time.toMillis, resolution.toMillis)
+      nodes.foreach(_ ! Calibrate(resolution.toUnit(MILLISECONDS)))
+      remainingSimulationTime = time.toUnit(MILLISECONDS)
+      tick(time.toUnit(MILLISECONDS), resolution.toUnit(MILLISECONDS))
 
-      become(simulating(termination, time.toMillis, resolution.toMillis))
+      become(simulating(termination, time.toUnit(MILLISECONDS), resolution.toUnit(MILLISECONDS)))
 
     case DeviceRequest(device, promise) =>
       device ! Request(self)
@@ -48,10 +48,10 @@ class Network extends Actor with ActorLogging {
 
   }
 
-  private var remainingSimulationTime = 0l
+  private var remainingSimulationTime = 0d
   private val ackTicks = mutable.Set.empty[ActorRef]
 
-  def simulating(termination: Promise[Unit], time: Long, resolution: Long): Receive = {
+  def simulating(termination: Promise[Unit], time: Double, resolution: Double): Receive = {
 
     case AckTick =>
       ackTicks += sender
@@ -69,7 +69,7 @@ class Network extends Actor with ActorLogging {
 
   }
 
-  def tick(time: Long, step: Long): Unit = {
+  def tick(time: Double, step: Double): Unit = {
     nodes.foreach(_ ! Tick(time - remainingSimulationTime))
     remainingSimulationTime -= step
     ackTicks.clear
@@ -86,11 +86,11 @@ object Network {
 
   final case class Simulate(termination: Promise[Unit], time: Duration, resolution: Duration = defaultResolution)
 
-  final case class Tick(time: Long)
+  final case class Tick(time: Double)
 
   case object AckTick
 
-  final case class Calibrate(resolution: Long)
+  final case class Calibrate(resolution: Double)
 
   final case class DeviceRequest(device: ActorRef, promise: Promise[Records])
 

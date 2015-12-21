@@ -22,6 +22,7 @@ class IafNeuron(params: withParams) extends Neuron {
   var y2 = 0d
   // This is the membrane potential RELATIVE TO RESTING POTENTIAL
   var y3 = 0d
+  var r = 0
 
   /** Variables. */
   var PSCInitialValue = 0d
@@ -33,11 +34,12 @@ class IafNeuron(params: withParams) extends Neuron {
   var P32 = 0d
   var P30 = 0d
   var P33 = 0d
+  var refractoryCounts = 0
 
   def Vm: Double =
     y3 + U0
 
-  override def calibrate(resolution: Long): Unit = {
+  override def calibrate(resolution: Double): Unit = {
     P11 = exp(- resolution / tauSyn)
     P22 = P11
     P33 = exp(- resolution / tau)
@@ -46,9 +48,19 @@ class IafNeuron(params: withParams) extends Neuron {
     P31 = propagator_31( tauSyn, tau, C, resolution )
     P32 = propagator_32( tauSyn, tau, C, resolution )
     PSCInitialValue = 1.0 * math.E / tauSyn
+    refractoryCounts = 0 // tauR.toInt
   }
 
-  override def update(origin: Long): Unit = {
+  override def update(origin: Double): Unit = {
+
+    //if (r == 0) {
+      // neuron not refractory
+      y3 = P30 * ( y0 + Ie ) + P31 * y1 + P32 * y2 + P33 * y3
+    //} else {
+      // neuron is absolute refractory
+    //  r -= 1
+    //}
+
     y3 = P30 * ( y0 + Ie ) + P31 * y1 + P32 * y2 + P33 * y3
     y2 = P21 * y1 + P22 * y2
     y1 *= P11
@@ -56,6 +68,7 @@ class IafNeuron(params: withParams) extends Neuron {
 
     if ( y3 >= theta ) {
       y3 = VReset
+      //r = refractoryCounts
 
       send(Spike())
     }

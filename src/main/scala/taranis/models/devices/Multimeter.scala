@@ -27,7 +27,7 @@ case class Multimeter[T](params: withRecorders[T]) extends Node {
       }
 
     case Data(timestamp, label, value) =>
-      //log.debug(s"incoming data $label: $value")
+      //log.debug(s"incoming data (at $timestamp) $label: $value")
       records(label) += (timestamp.toDouble -> value)
 
     case Request(requester) =>
@@ -43,9 +43,9 @@ case class Multimeter[T](params: withRecorders[T]) extends Node {
 
   }
 
-  override def calibrate(resolution: Long): Unit = ()
+  override def calibrate(resolution: Double): Unit = ()
 
-  override def update(origin: Long): Unit = ()
+  override def update(origin: Double): Unit = ()
 
   override def handle(e: Spike): Unit = ()
 }
@@ -55,7 +55,7 @@ object Multimeter {
   type Extractor[T] = T => Double
   type Records = Map[String, Seq[(Double, Double)]]
 
-  final case class Data(timestamp: Long, label: String, value: Double)
+  final case class Data(timestamp: Double, label: String, value: Double)
 
   final case class Recorder[T](label: String, extractor: Extractor[T])
 

@@ -5,9 +5,9 @@ import taranis.events.Spike
 
 trait Node extends Actor with ActorLogging {
 
-  def calibrate(resolution: Long): Unit
+  def calibrate(resolution: Double): Unit
 
-  def update(origin: Long): Unit
+  def update(origin: Double): Unit
 
   def handle(e: Spike): Unit
 
