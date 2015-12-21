@@ -3,7 +3,7 @@
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>
-                %date{ISO8601} %-5level %-30logger{30} %.-300msg %ex{short}%n
+                %date{ISO8601} %-5level %-30logger{30} %-40X{akkaSource} %.-300msg %ex{short}%n
             </pattern>
         </encoder>
     </appender>

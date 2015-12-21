@@ -35,6 +35,7 @@ abstract class Neuron extends Node {
       handle(spike)
 
     case Recorder(label, extractor) =>
+      log.debug(s"add recorders $label")
       recorders += (sender, label) -> extractor
 
   }

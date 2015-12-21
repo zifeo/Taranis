@@ -1,6 +1,7 @@
 package taranis.models.devices
 
 import akka.actor.ActorRef
+import taranis.Network
 import taranis.events.Spike
 import taranis.models.Node.Register
 import taranis.models.devices.Multimeter.withRecorders
@@ -11,6 +12,7 @@ import scala.collection.mutable
 case class Multimeter[T](params: withRecorders[T]) extends Node {
 
   import Multimeter._
+  import Network._
   import params._
 
   val records = recorders.toMap.map { case (label, _) =>
@@ -25,6 +27,7 @@ case class Multimeter[T](params: withRecorders[T]) extends Node {
       }
 
     case Data(timestamp, label, value) =>
+      //log.debug(s"incoming data $label: $value")
       records(label) += (timestamp.toDouble -> value)
 
     case Request(requester) =>
@@ -32,6 +35,11 @@ case class Multimeter[T](params: withRecorders[T]) extends Node {
         label -> recorded.toSeq
       }
       requester ! Results(data)
+
+    case Calibrate(_) =>
+
+    case Tick(_) =>
+      sender ! AckTick
 
   }
 

@@ -17,11 +17,11 @@ abstract class Simulation extends App {
   LogManager.getLogManager.readConfiguration()
   implicit val system = ActorSystem("Taranis")
 
-  @volatile private var identity = 0
+  private var identity = 0
   private val net = system.actorOf(Network.props, "net")
 
   private def spawn(elem: Parameters): ActorRef = {
-    val kind = elem.getClass.getSimpleName
+    val kind = elem.kind.getSimpleName
     identity += 1
     val ref = system.actorOf(Props(elem.kind, elem), s"$identity:$kind")
     net ! Register(ref)
@@ -44,8 +44,9 @@ abstract class Simulation extends App {
   }
 
   def simulate(time: Duration, resolution: Duration = Network.defaultResolution): Unit = {
-    net ! Simulate(time, resolution)
-    Await.result(system.whenTerminated, Duration.Inf)
+    val termination = Promise[Unit]()
+    net ! Simulate(termination, time, resolution)
+    Await.result(termination.future, Duration.Inf)
   }
 
   def data(device: ActorRef): Records = {

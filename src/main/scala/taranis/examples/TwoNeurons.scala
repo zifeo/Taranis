@@ -22,12 +22,13 @@ object TwoNeurons extends Simulation {
   ))
 
   connect(neuron1, neuron2, StaticSynapse.withParams(weight = weight, delay = delay))
+  connect(multimeter, neuron2)
 
-  simulate(100 milliseconds)
+  simulate(100 milliseconds, 1 milliseconds)
 
   val records = data(multimeter)
-  val p = Figure().subplot(0)
+  println(records)
   val (xs, ys) = records("Vm").unzip
-  p += plot(xs, ys, '.')
+  Figure().subplot(0) += plot(xs, ys)
 
 }

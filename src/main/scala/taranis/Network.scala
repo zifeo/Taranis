@@ -25,14 +25,14 @@ class Network extends Actor with ActorLogging {
     case Register(node) =>
       nodes += node
 
-    case Simulate(time, resolution) =>
+    case Simulate(termination, time, resolution) =>
       log.debug(s"starting simulation with resolution $resolution and time $time")
 
       nodes.foreach(_ ! Calibrate(resolution.toMillis))
       remainingSimulationTime = time.toMillis
-      tick(resolution.toMillis)
+      tick(time.toMillis, resolution.toMillis)
 
-      become(simulating(time.toMillis, resolution.toMillis))
+      become(simulating(termination, time.toMillis, resolution.toMillis))
 
     case DeviceRequest(device, promise) =>
       device ! Request(self)
@@ -51,26 +51,28 @@ class Network extends Actor with ActorLogging {
   private var remainingSimulationTime = 0l
   private val ackTicks = mutable.Set.empty[ActorRef]
 
-  def simulating(time: Long, resolution: Long): Receive = {
+  def simulating(termination: Promise[Unit], time: Long, resolution: Long): Receive = {
 
     case AckTick =>
-      ackTicks += sender()
+      ackTicks += sender
 
       if (ackTicks.size == nodes.size) {
         if (remainingSimulationTime > 0) {
           log.debug(s"advance simulation $remainingSimulationTime")
-          tick(time - remainingSimulationTime)
+          tick(time, resolution)
         } else {
           log.debug(s"terminate simulation")
           become(setup)
+          termination.success(())
         }
       }
 
   }
 
-  def tick(step: Long): Unit = {
-    nodes.foreach(_ ! Tick(step))
+  def tick(time: Long, step: Long): Unit = {
+    nodes.foreach(_ ! Tick(time - remainingSimulationTime))
     remainingSimulationTime -= step
+    ackTicks.clear
   }
 
 }
@@ -82,7 +84,7 @@ object Network {
   def props: Props =
     Props(new Network)
 
-  final case class Simulate(time: Duration, resolution: Duration = defaultResolution)
+  final case class Simulate(termination: Promise[Unit], time: Duration, resolution: Duration = defaultResolution)
 
   final case class Tick(time: Long)
 
