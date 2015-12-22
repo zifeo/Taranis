@@ -1,8 +1,8 @@
 package taranis.events
 
 final case class Spike(
-                        weight: Double = 1,
-                        multiplicity: Int = 1,
-                        delay: Long = 1,
-                        port: Int = 1
+                        var weight: Double = 1,
+                        var multiplicity: Int = 1,
+                        var delay: Long = 1,
+                        var port: Int = 1
                       )

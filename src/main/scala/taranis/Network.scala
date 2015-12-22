@@ -26,7 +26,7 @@ class Network extends Actor with ActorLogging {
       nodes += node
 
     case Simulate(termination, time, resolution) =>
-      log.debug(s"starting simulation with resolution $resolution and time $time")
+      //log.debug(s"starting simulation with resolution $resolution and time $time")
 
       nodes.foreach(_ ! Calibrate(resolution.toUnit(MILLISECONDS)))
       remainingSimulationTime = time.toUnit(MILLISECONDS)
@@ -58,10 +58,10 @@ class Network extends Actor with ActorLogging {
 
       if (ackTicks.size == nodes.size) {
         if (remainingSimulationTime > 0) {
-          log.debug(s"advance simulation $remainingSimulationTime")
+          //log.debug(s"advance simulation $remainingSimulationTime")
           tick(time, resolution)
         } else {
-          log.debug(s"terminate simulation")
+          //log.debug(s"terminate simulation")
           become(setup)
           termination.success(())
         }

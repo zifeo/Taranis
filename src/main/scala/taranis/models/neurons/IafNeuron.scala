@@ -48,20 +48,19 @@ class IafNeuron(params: withParams) extends Neuron {
     P31 = propagator_31( tauSyn, tau, C, resolution )
     P32 = propagator_32( tauSyn, tau, C, resolution )
     PSCInitialValue = 1.0 * math.E / tauSyn
-    refractoryCounts = 0 // tauR.toInt
+    refractoryCounts = tauR.toInt
   }
 
   override def update(origin: Double): Unit = {
 
-    //if (r == 0) {
+    if (r == 0) {
       // neuron not refractory
       y3 = P30 * ( y0 + Ie ) + P31 * y1 + P32 * y2 + P33 * y3
-    //} else {
+    } else {
       // neuron is absolute refractory
-    //  r -= 1
-    //}
+      r -= 1
+    }
 
-    y3 = P30 * ( y0 + Ie ) + P31 * y1 + P32 * y2 + P33 * y3
     y2 = P21 * y1 + P22 * y2
     y1 *= P11
     y1 += PSCInitialValue * spikesValue

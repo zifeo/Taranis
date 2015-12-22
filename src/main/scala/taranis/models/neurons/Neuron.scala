@@ -21,7 +21,7 @@ abstract class Neuron extends Node {
 
     case Register(successor) =>
       successors += successor
-      log.debug(s"$self register $successor")
+      //log.debug(s"$self register $successor")
 
     case Calibrate(resolution) =>
       calibrate(resolution)
@@ -35,7 +35,7 @@ abstract class Neuron extends Node {
       handle(spike)
 
     case Recorder(label, extractor) =>
-      log.debug(s"add recorders $label")
+      //log.debug(s"add recorders $label")
       recorders += (sender, label) -> extractor
 
   }
@@ -46,7 +46,7 @@ abstract class Neuron extends Node {
 
   def handle(e: Spike): Unit = {
     val weight = e.weight
-    log.debug(s"got spike with weight $weight from $sender")
+    //log.debug(s"got spike with weight $weight from $sender")
     spikesValue += e.weight * e.multiplicity
   }
 

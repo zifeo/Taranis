@@ -9,7 +9,9 @@ case class StaticSynapse(params: withParams) extends Synapse {
   import params._
 
   def bridged(e: Spike): Spike = {
-    e.copy(weight = weight, delay = delay)
+    e.weight = weight
+    e.delay = delay
+    e
   }
 
 }

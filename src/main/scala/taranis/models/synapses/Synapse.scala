@@ -15,7 +15,7 @@ abstract class Synapse extends Node {
 
     case Register(neuron) =>
       postSynaptic = neuron
-      log.debug(s"$self register post-synaptic $neuron")
+      //log.debug(s"$self register post-synaptic $neuron")
 
     case Calibrate(resolution) =>
       calibrate(resolution)
