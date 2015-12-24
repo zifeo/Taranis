@@ -10,8 +10,8 @@ import scala.collection.mutable
 
 abstract class Neuron extends Node {
 
-  import Node._
   import Multimeter._
+  import Node._
 
   private val successors = mutable.ListBuffer.empty[ActorRef]
   protected var spikesValue = 0d

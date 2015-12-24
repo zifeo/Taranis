@@ -16,14 +16,14 @@ case class Multimeter[T](params: withRecorders[T]) extends Node {
   import params._
 
   val records = recorders.toMap.map { case (label, _) =>
-    label -> mutable.ListBuffer.empty[(Double, Double)]
+      label -> mutable.ListBuffer.empty[(Double, Double)]
   }
 
   override def receive: Receive = {
 
     case Register(node) =>
       recorders.foreach { case (label, extractor) =>
-        node ! Recorder(label, extractor)
+          node ! Recorder(label, extractor)
       }
 
     case Data(timestamp, label, value) =>
@@ -32,7 +32,7 @@ case class Multimeter[T](params: withRecorders[T]) extends Node {
 
     case Request(requester) =>
       val data = records.map { case (label, recorded) =>
-        label -> recorded.toSeq
+          label -> recorded.toSeq
       }
       requester ! Results(data)
 

@@ -6,7 +6,7 @@ object Dependencies {
     "com.typesafe" % "config" % "1.3.0",
     "ch.qos.logback" % "logback-classic" % "1.1.3",
     "ch.qos.logback" % "logback-access" % "1.1.3",
-    "net.logstash.logback" % "logstash-logback-encoder" % "4.5.1",
+    //"net.logstash.logback" % "logstash-logback-encoder" % "4.5.1",
     "com.storm-enroute" % "scalameter_2.11" % "0.7"
   )
 
@@ -23,6 +23,19 @@ object Dependencies {
   val visual = Seq(
     "org.scalanlp" %% "breeze-viz" % "0.11.2"
   )
+
+  val kamon = {
+    val version = "0.5.2"
+    Seq(
+      "io.kamon" %% "kamon-core" % version,
+      "io.kamon" %% "kamon-scala" % version,
+      "io.kamon" %% "kamon-akka" % version,
+      "io.kamon" %% "kamon-akka-remote" % version,
+      //"io.kamon" %% "kamon-statsd" % version,
+      "io.kamon" %% "kamon-log-reporter" % version,
+      "io.kamon" %% "kamon-system-metrics" % version
+    )
+  }
 
   val tests = Seq(
     "org.scalacheck" %% "scalacheck" % "1.12.5" % "test",

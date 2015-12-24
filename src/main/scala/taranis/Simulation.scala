@@ -3,7 +3,7 @@ package taranis
 import java.util.logging.LogManager
 import javax.swing.SwingUtilities
 
-import akka.actor.{PoisonPill, ActorRef, ActorSystem, Props}
+import akka.actor.{ActorRef, ActorSystem, PoisonPill, Props}
 import breeze.plot.Plot
 import taranis.Network.{DeviceRequest, Simulate}
 import taranis.models.Node.Register

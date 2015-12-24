@@ -40,13 +40,13 @@ class IafNeuron(params: withParams) extends Neuron {
     y3 + U0
 
   override def calibrate(resolution: Double): Unit = {
-    P11 = exp(- resolution / tauSyn)
+    P11 = exp(-resolution / tauSyn)
     P22 = P11
-    P33 = exp(- resolution / tau)
+    P33 = exp(-resolution / tau)
     P21 = resolution * P11
-    P30 = 1 / C * ( 1 - P33 ) * tau
-    P31 = propagator_31( tauSyn, tau, C, resolution )
-    P32 = propagator_32( tauSyn, tau, C, resolution )
+    P30 = 1 / C * (1 - P33) * tau
+    P31 = propagator_31(tauSyn, tau, C, resolution)
+    P32 = propagator_32(tauSyn, tau, C, resolution)
     PSCInitialValue = 1.0 * math.E / tauSyn
     refractoryCounts = tauR.toInt
   }
@@ -55,7 +55,7 @@ class IafNeuron(params: withParams) extends Neuron {
 
     if (r == 0) {
       // neuron not refractory
-      y3 = P30 * ( y0 + Ie ) + P31 * y1 + P32 * y2 + P33 * y3
+      y3 = P30 * (y0 + Ie) + P31 * y1 + P32 * y2 + P33 * y3
     } else {
       // neuron is absolute refractory
       r -= 1
@@ -65,7 +65,7 @@ class IafNeuron(params: withParams) extends Neuron {
     y1 *= P11
     y1 += PSCInitialValue * spikesValue
 
-    if ( y3 >= theta ) {
+    if (y3 >= theta) {
       y3 = VReset
       //r = refractoryCounts
 
@@ -76,24 +76,24 @@ class IafNeuron(params: withParams) extends Neuron {
   }
 
   def propagator_31(tau_syn: Double, tau: Double, C: Double, h: Double): Double = {
-    val P31_linear = 1 / ( 3d * C * tau * tau ) * h * h * h * ( tau_syn - tau ) * exp( -h / tau )
-    val P31 = 1 / C * ( exp( -h / tau_syn ) * expm1( -h / tau + h / tau_syn ) / ( tau / tau_syn - 1 ) * tau - h * exp( -h / tau_syn ) ) / ( -1 - -tau / tau_syn ) * tau
-    val P31_singular = h * h / 2 / C * exp( -h / tau )
-    val dev_P31 = abs( P31 - P31_singular )
+    val P31_linear = 1 / (3d * C * tau * tau) * h * h * h * (tau_syn - tau) * exp(-h / tau)
+    val P31 = 1 / C * (exp(-h / tau_syn) * expm1(-h / tau + h / tau_syn) / (tau / tau_syn - 1) * tau - h * exp(-h / tau_syn)) / (-1 - -tau / tau_syn) * tau
+    val P31_singular = h * h / 2 / C * exp(-h / tau)
+    val dev_P31 = abs(P31 - P31_singular)
 
-    if ( tau == tau_syn || ( math.abs( tau - tau_syn ) < 0.1 && dev_P31 > 2 * abs( P31_linear ) ) )
+    if (tau == tau_syn || (math.abs(tau - tau_syn) < 0.1 && dev_P31 > 2 * abs(P31_linear)))
       P31_singular
     else
       P31
   }
 
   def propagator_32(tau_syn: Double, tau: Double, C: Double, h: Double): Double = {
-    val P32_linear = 1 / ( 2d * C * tau * tau ) * h * h * ( tau_syn - tau ) * exp( -h / tau )
-    val P32_singular = h / C * exp( -h / tau )
-    val P32 = -tau / ( C * ( 1 - tau / tau_syn ) ) * exp( -h / tau_syn ) * expm1( h * ( 1 / tau_syn - 1 / tau ) )
-    val dev_P32 = abs( P32 - P32_singular )
+    val P32_linear = 1 / (2d * C * tau * tau) * h * h * (tau_syn - tau) * exp(-h / tau)
+    val P32_singular = h / C * exp(-h / tau)
+    val P32 = -tau / (C * (1 - tau / tau_syn)) * exp(-h / tau_syn) * expm1(h * (1 / tau_syn - 1 / tau))
+    val dev_P32 = abs(P32 - P32_singular)
 
-    if ( tau == tau_syn ||( abs( tau - tau_syn ) < 0.1 && dev_P32 > 2 * abs( P32_linear ) ) )
+    if (tau == tau_syn || (abs(tau - tau_syn) < 0.1 && dev_P32 > 2 * abs(P32_linear)))
       P32_singular
     else
       P32
