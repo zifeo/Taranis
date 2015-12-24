@@ -1,6 +1,6 @@
 package taranis
 
-import akka.actor.{ActorRef, Props, ActorSystem}
+import akka.actor.{ActorRef, ActorSystem, Props}
 import org.scalameter._
 
 import scala.annotation.tailrec
@@ -10,12 +10,12 @@ import scala.concurrent.duration.Duration
 package object benchmark {
 
   val meter = config(
-    Key.exec.benchRuns -> 10,
+    Key.exec.benchRuns -> 100,
     Key.verbose -> true
   ) withWarmer {
     new Warmer.Default
   } withMeasurer {
-    new Measurer.Default
+    new Measurer.IgnoringGC
   }
 
   def bench(marks: ActorSystem => Unit): Quantity[Double] = {
