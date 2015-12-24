@@ -35,6 +35,7 @@ class MutableIncr(termination: Promise[Unit], threshold: Int) extends Actor {
 object StateVsMutable extends App {
 
   case object Incr
+
   val threshold = 100000
 
   val stateTime = bench { implicit system =>
