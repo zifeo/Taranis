@@ -1,13 +1,13 @@
-package taranis
+package taranis.dsl
 
 import java.util.logging.LogManager
 import javax.swing.SwingUtilities
 
 import akka.actor.{ActorRef, ActorSystem, PoisonPill, Props}
 import breeze.plot.Plot
-import taranis.Network.{DeviceRequest, Simulate}
-import taranis.models.Node.Register
-import taranis.models.Parameters
+import taranis.core.Network.{DeviceRequest, Simulate}
+import taranis.core.Node.Register
+import taranis.core.{Network, Node, Parameters}
 import taranis.models.devices.Multimeter.Records
 
 import scala.concurrent.duration._

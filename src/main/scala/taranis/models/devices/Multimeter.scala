@@ -1,11 +1,10 @@
 package taranis.models.devices
 
 import akka.actor.ActorRef
-import taranis.Network
-import taranis.events.Spike
-import taranis.models.Node.Register
+import taranis.core.{Node, Parameters, Network}
+import taranis.core.events.Spike
+import Node.Register
 import taranis.models.devices.Multimeter.withRecorders
-import taranis.models.{Node, Parameters}
 
 import scala.collection.mutable
 

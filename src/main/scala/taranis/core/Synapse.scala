@@ -1,9 +1,9 @@
-package taranis.models.synapses
+package taranis.core
 
 import akka.actor.ActorRef
-import taranis.Network.{AckTick, Calibrate, Tick}
-import taranis.events.Spike
-import taranis.models.Node
+import taranis.core.Network.{AckTick, Calibrate, Tick}
+import taranis.core.Node
+import taranis.core.events.Spike
 
 abstract class Synapse extends Node {
 

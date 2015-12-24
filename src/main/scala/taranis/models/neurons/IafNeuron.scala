@@ -1,8 +1,8 @@
 package taranis.models.neurons
 
 import breeze.numerics.expm1
-import taranis.events.Spike
-import taranis.models.Parameters
+import taranis.core.{Parameters, Neuron}
+import taranis.core.events.Spike
 import taranis.models.neurons.IafNeuron.withParams
 
 import scala.math.{abs, exp}

@@ -1,7 +1,7 @@
 package taranis.models.synapses
 
-import taranis.events.Spike
-import taranis.models.Parameters
+import taranis.core.{Parameters, Synapse}
+import taranis.core.events.Spike
 import taranis.models.synapses.StaticSynapse.withParams
 
 case class StaticSynapse(params: withParams) extends Synapse {

@@ -1,6 +1,6 @@
 package taranis.examples
 
-import taranis.Simulation
+import taranis.dsl.Simulation
 import taranis.models.devices.Multimeter
 import taranis.models.devices.Multimeter.Records
 import taranis.models.neurons.IafNeuron

@@ -1,7 +1,7 @@
-package taranis
+package taranis.core
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import taranis.models.Node.Register
+import Node.Register
 import taranis.models.devices.Multimeter
 import taranis.models.devices.Multimeter.Records
 

@@ -1,7 +1,7 @@
-package taranis.models
+package taranis.core
 
-import akka.actor.{ActorRef, Actor, ActorLogging}
-import taranis.events.Spike
+import akka.actor.{Actor, ActorLogging, ActorRef}
+import taranis.core.events.Spike
 
 trait Node extends Actor with ActorLogging {
 
