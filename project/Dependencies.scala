@@ -28,7 +28,6 @@ object Dependencies {
     val version = "0.5.2"
     Seq(
       "io.kamon" %% "kamon-core" % version,
-      "io.kamon" %% "kamon-scala" % version,
       "io.kamon" %% "kamon-akka" % version,
       "io.kamon" %% "kamon-akka-remote" % version,
       //"io.kamon" %% "kamon-statsd" % version,

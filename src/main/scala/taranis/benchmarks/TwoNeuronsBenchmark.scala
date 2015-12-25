@@ -1,5 +1,6 @@
 package taranis.benchmarks
 
+import kamon.Kamon
 import taranis.dsl._
 import taranis.models.devices._
 import taranis.models.neurons._
@@ -10,6 +11,7 @@ import scala.language.postfixOps
 
 object TwoNeuronsBenchmark extends App {
 
+  Kamon.start()
   val run = bench { _ =>
 
     val weight = 20.0
@@ -28,6 +30,10 @@ object TwoNeuronsBenchmark extends App {
     simulate(100 milliseconds, 1 millisecond)
   }
 
+  Thread.sleep(5000)
+  Kamon.shutdown()
+
   println(s"run: $run")
+  terminate()
 
 }
