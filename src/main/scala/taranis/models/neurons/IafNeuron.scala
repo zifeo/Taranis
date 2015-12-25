@@ -1,8 +1,8 @@
 package taranis.models.neurons
 
 import breeze.numerics.expm1
-import taranis.core.{Parameters, Neuron}
 import taranis.core.events.Spike
+import taranis.core.{Neuron, Parameters}
 import taranis.models.neurons.IafNeuron.withParams
 
 import scala.math.{abs, exp}
@@ -45,7 +45,7 @@ class IafNeuron(params: withParams) extends Neuron {
     P31 = propagator_31(tauSyn, tau, C, resolution)
     P32 = propagator_32(tauSyn, tau, C, resolution)
     PSCInitialValue = 1.0 * math.E / tauSyn
-    refractoryCounts = tauR.toInt
+    refractoryCounts = (tauR / resolution).toInt
   }
 
   def update(origin: Double): Unit = {

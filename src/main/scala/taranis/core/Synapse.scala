@@ -24,16 +24,11 @@ abstract class Synapse extends Node {
       sender ! AckTick
 
     case spike: Spike =>
-      successor ! bridged(spike)
+      handle(spike)
 
   }
 
-  def calibrate(resolution: Time): Unit = ()
-
-  def update(time: Time): Unit = ()
-
-  def handle(spike: Spike): Unit = ()
-
-  def bridged(spike: Spike): Spike
+  def send(spike: Spike): Unit =
+    successor ! spike
 
 }
