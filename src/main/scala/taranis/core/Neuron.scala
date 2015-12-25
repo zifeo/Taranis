@@ -14,7 +14,7 @@ abstract class Neuron extends Node {
 
   private val successors = mutable.ListBuffer.empty[ActorRef]
   private val recorders = mutable.Map.empty[ActorRef, List[Extractor[Neuron]]]
-  protected var spikesValue = 0d
+  protected var bufferedSpike = 0d
 
   override def receive: Receive = {
 
@@ -32,7 +32,7 @@ abstract class Neuron extends Node {
 
     case Tick(time) =>
       update(time)
-      spikesValue = 0
+      bufferedSpike = 0
       records(time)
       sender ! AckTick
 
@@ -42,7 +42,7 @@ abstract class Neuron extends Node {
   }
 
   def handle(spike: Spike): Unit =
-    spikesValue += spike.weight
+    bufferedSpike += spike.weight
 
   def records(time: Time): Unit =
     for {

@@ -22,6 +22,6 @@ case class StaticSynapse(params: withParams) extends Synapse {
 
 object StaticSynapse {
 
-  case class withParams(weight: Double, delay: Long) extends Parameters(classOf[StaticSynapse])
+  case class withParams(weight: Double, delay: Time) extends Parameters(classOf[StaticSynapse])
 
 }

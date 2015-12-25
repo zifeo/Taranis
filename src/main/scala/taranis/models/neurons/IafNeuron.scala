@@ -48,7 +48,7 @@ class IafNeuron(params: withParams) extends Neuron {
     refractoryCounts = (tauR / resolution).toInt
   }
 
-  def update(origin: Double): Unit = {
+  def update(time: Double): Unit = {
     if (r == 0)
       y3 = P30 * (y0 + Ie) + P31 * y1 + P32 * y2 + P33 * y3
     else
@@ -56,12 +56,12 @@ class IafNeuron(params: withParams) extends Neuron {
 
     y2 = P21 * y1 + P22 * y2
     y1 *= P11
-    y1 += PSCInitialValue * spikesValue
+    y1 += PSCInitialValue * bufferedSpike
 
     if (y3 >= theta) {
       y3 = VReset
       r = refractoryCounts
-      send(Spike(time = origin, delay = 1, weight = 1))
+      send(Spike(time = time, delay = 1, weight = 1))
     }
   }
 

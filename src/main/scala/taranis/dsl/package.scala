@@ -35,8 +35,16 @@ package object dsl {
     ref
   }
 
+  def create(number: Int)(n: Parameters): List[ActorRef] = {
+    ???
+  }
+
   def create(n: Parameters): ActorRef = {
     spawn(n)
+  }
+
+  def connect(pre: ActorRef, post: ActorRef): Unit = {
+    pre ! Register(post)
   }
 
   def connect(pre: ActorRef, post: ActorRef, bridge: Parameters): ActorRef = {
@@ -46,9 +54,18 @@ package object dsl {
     bridger
   }
 
-  def connect(pre: ActorRef, post: ActorRef): Unit = {
-    pre ! Register(post)
+  def connect(pre: ActorRef, posts: List[ActorRef], bridge: Parameters): List[ActorRef] = {
+    ???
   }
+
+  def connect(pres: List[ActorRef], post: ActorRef, bridge: Parameters): List[ActorRef] = {
+    ???
+  }
+
+  def connect(pres: List[ActorRef], posts: List[ActorRef], bridge: Parameters): List[ActorRef] = {
+    ???
+  }
+
 
   def simulate(time: Duration, resolution: Duration = Network.defaultResolution): Unit = {
     val termination = Promise[Unit]()
