@@ -16,17 +16,14 @@ class IafNeuron(params: withParams) extends Neuron {
   require(tau > 0 && tauSyn > 0 && tauR > 0, "all time constants must be strictly positive")
 
   /** States. */
-  // Constant current
   var y0 = 0d
   var y1 = 0d
   var y2 = 0d
-  // This is the membrane potential RELATIVE TO RESTING POTENTIAL
   var y3 = 0d
   var r = 0
 
   /** Variables. */
   var PSCInitialValue = 0d
-  // refractory time in steps
   var P11 = 0d
   var P21 = 0d
   var P22 = 0d
@@ -39,7 +36,7 @@ class IafNeuron(params: withParams) extends Neuron {
   def Vm: Double =
     y3 + U0
 
-  override def calibrate(resolution: Double): Unit = {
+  def calibrate(resolution: Double): Unit = {
     P11 = exp(-resolution / tauSyn)
     P22 = P11
     P33 = exp(-resolution / tau)
@@ -51,15 +48,11 @@ class IafNeuron(params: withParams) extends Neuron {
     refractoryCounts = tauR.toInt
   }
 
-  override def update(origin: Double): Unit = {
-
-    if (r == 0) {
-      // neuron not refractory
+  def update(origin: Double): Unit = {
+    if (r == 0)
       y3 = P30 * (y0 + Ie) + P31 * y1 + P32 * y2 + P33 * y3
-    } else {
-      // neuron is absolute refractory
+    else
       r -= 1
-    }
 
     y2 = P21 * y1 + P22 * y2
     y1 *= P11
@@ -67,12 +60,9 @@ class IafNeuron(params: withParams) extends Neuron {
 
     if (y3 >= theta) {
       y3 = VReset
-      //r = refractoryCounts
-
-      send(Spike())
+      r = refractoryCounts
+      send(Spike(time = origin, delay = 1, weight = 1))
     }
-
-    records(this, origin)
   }
 
   def propagator_31(tau_syn: Double, tau: Double, C: Double, h: Double): Double = {
@@ -81,7 +71,7 @@ class IafNeuron(params: withParams) extends Neuron {
     val P31_singular = h * h / 2 / C * exp(-h / tau)
     val dev_P31 = abs(P31 - P31_singular)
 
-    if (tau == tau_syn || (math.abs(tau - tau_syn) < 0.1 && dev_P31 > 2 * abs(P31_linear)))
+    if (tau == tau_syn || (abs(tau - tau_syn) < 0.1 && dev_P31 > 2 * abs(P31_linear)))
       P31_singular
     else
       P31

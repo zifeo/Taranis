@@ -1,67 +1,53 @@
 package taranis.models.devices
 
-import akka.actor.ActorRef
-import taranis.core.{Node, Parameters, Network}
-import taranis.core.events.Spike
-import Node.Register
+import akka.actor.{Actor, ActorLogging}
+import taranis.core.Node.Register
+import taranis.core.{Parameters, Time}
 import taranis.models.devices.Multimeter.withRecorders
 
 import scala.collection.mutable
 
-case class Multimeter[T](params: withRecorders[T]) extends Node {
+case class Multimeter[T](params: withRecorders[T]) extends Actor with ActorLogging {
 
   import Multimeter._
-  import Network._
   import params._
 
   val records = recorders.toMap.map { case (label, _) =>
-      label -> mutable.ListBuffer.empty[(Double, Double)]
+    label -> mutable.ListBuffer.empty[(Time, Double)]
   }
 
   override def receive: Receive = {
 
     case Register(node) =>
-      recorders.foreach { case (label, extractor) =>
-          node ! Recorder(label, extractor)
+      log.debug(s"register: $node")
+      recorders.foreach { recorder =>
+        node ! Record(recorder)
       }
 
-    case Data(timestamp, label, value) =>
-      //log.debug(s"incoming data (at $timestamp) $label: $value")
-      records(label) += (timestamp.toDouble -> value)
+    case Data(time, label, value) =>
+      records(label) += time -> value
 
-    case Request(requester) =>
+    case Request =>
       val data = records.map { case (label, recorded) =>
-          label -> recorded.toSeq
+        label -> recorded.toSeq
       }
-      requester ! Results(data)
-
-    case Calibrate(_) =>
-
-    case Tick(_) =>
-      sender ! AckTick
+      sender ! data
 
   }
-
-  override def calibrate(resolution: Double): Unit = ()
-
-  override def update(origin: Double): Unit = ()
-
-  override def handle(e: Spike): Unit = ()
 }
 
 object Multimeter {
 
-  type Extractor[T] = T => Double
+  type Extractor[T] = (String, T => Double)
+
   type Records = Map[String, Seq[(Double, Double)]]
 
   final case class Data(timestamp: Double, label: String, value: Double)
 
-  final case class Recorder[T](label: String, extractor: Extractor[T])
+  final case class Record[T](extractor: Extractor[T])
 
-  final case class Request(requester: ActorRef)
+  object Request
 
-  final case class Results(data: Records)
-
-  case class withRecorders[T](recorders: (String, Extractor[T])*) extends Parameters(classOf[Multimeter[T]])
+  case class withRecorders[T](recorders: Extractor[T]*) extends Parameters(classOf[Multimeter[T]])
 
 }

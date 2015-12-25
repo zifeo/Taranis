@@ -2,7 +2,6 @@ package taranis.core
 
 import akka.actor.ActorRef
 import taranis.core.Network.{AckTick, Calibrate, Tick}
-import taranis.core.Node
 import taranis.core.events.Spike
 import taranis.models.devices.Multimeter
 
@@ -14,14 +13,19 @@ abstract class Neuron extends Node {
   import Node._
 
   private val successors = mutable.ListBuffer.empty[ActorRef]
+  private val recorders = mutable.Map.empty[ActorRef, List[Extractor[Neuron]]]
   protected var spikesValue = 0d
-  private val recorders = mutable.Map.empty[(ActorRef, String), Extractor[Neuron]]
 
   override def receive: Receive = {
 
     case Register(successor) =>
       successors += successor
-      //log.debug(s"$self register $successor")
+      log.debug(s"register: $successor")
+
+    case Record(extractor) =>
+      recorders += sender -> (extractor :: recorders.getOrElse(sender, List.empty))
+      val label = extractor._1
+      log.debug(s"record: $label")
 
     case Calibrate(resolution) =>
       calibrate(resolution)
@@ -29,37 +33,27 @@ abstract class Neuron extends Node {
     case Tick(time) =>
       update(time)
       spikesValue = 0
+      records(time)
       sender ! AckTick
 
     case spike: Spike =>
       handle(spike)
 
-    case Recorder(label, extractor) =>
-      //log.debug(s"add recorders $label")
-      recorders += (sender, label) -> extractor
-
   }
 
-  def calibrate(resolution: Double): Unit
+  def handle(spike: Spike): Unit =
+    spikesValue += spike.weight
 
-  def update(origin: Double): Unit
-
-  def handle(e: Spike): Unit = {
-    val weight = e.weight
-    //log.debug(s"got spike with weight $weight from $sender")
-    spikesValue += e.weight * e.multiplicity
-  }
-
-  def records(instance: Neuron, origin: Double): Unit = {
-    recorders.foreach {
-      case ((sender, label), extractor) =>
-        sender ! Data(origin, label, extractor(instance))
-
+  def records(time: Time): Unit =
+    for {
+      (recorder, extractors) <- recorders
+      (label, extractor) <- extractors
+    } {
+      recorder ! Data(time, label, extractor(this))
     }
-  }
 
-  protected def send(spike: Spike): Unit = {
+  protected def send(spike: Spike): Unit =
     successors.foreach(_ ! spike)
-  }
+
 
 }

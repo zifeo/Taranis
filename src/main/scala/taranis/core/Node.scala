@@ -5,16 +5,16 @@ import taranis.core.events.Spike
 
 trait Node extends Actor with ActorLogging {
 
-  def calibrate(resolution: Double): Unit
+  def calibrate(resolution: Time): Unit
 
-  def update(origin: Double): Unit
+  def update(time: Time): Unit
 
-  def handle(e: Spike): Unit
+  def handle(spike: Spike): Unit
 
 }
 
 object Node {
 
-  final case class Register(ref: ActorRef)
+  final case class Register(node: ActorRef)
 
 }

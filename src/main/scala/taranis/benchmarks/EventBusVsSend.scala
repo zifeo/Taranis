@@ -1,15 +1,15 @@
-package taranis.benchmark
+package taranis.benchmarks
 
 import akka.actor.{Actor, Props}
 import akka.pattern.ask
 import akka.util.Timeout
-import taranis.benchmark.BoxingVsRaw.{Incr, Plus, Total}
+import taranis.benchmarks.EventBusVsSend.{Incr, Total}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class RawActor extends Actor {
+class IncrActor extends Actor {
 
   var count = 0
 
@@ -21,35 +21,22 @@ class RawActor extends Actor {
   }
 }
 
-class BoxingActor extends Actor {
-
-  var count = 0
-
-  override def receive: Actor.Receive = {
-    case Plus(i) =>
-      count += i
-    case Total =>
-      sender ! count
-  }
-}
-
-object BoxingVsRaw extends App {
+object EventBusVsSend extends App {
 
   case object Incr
-  case class Plus(num: Int)
   case object Total
 
   val threshold = 100
   val actorCount = 100
   implicit val timeout = Timeout(5 seconds)
 
-  val boxingTime = bench { implicit system =>
-    val actors = spawn(Props(classOf[BoxingActor]), actorCount)
+  val eventBusTime = bench { implicit system =>
+    val actors = spawn(Props(classOf[IncrActor]), actorCount)
+    actors.foreach(system.eventStream.subscribe(_, Incr.getClass))
 
     var i = 0
     while (i < threshold) {
-      val plus = Plus(1)
-      actors.foreach(_ ! plus)
+      system.eventStream.publish(Incr)
       i += 1
     }
 
@@ -59,8 +46,9 @@ object BoxingVsRaw extends App {
     }
   }
 
-  val rawTime = bench { implicit system =>
-    val actors = spawn(Props(classOf[RawActor]), actorCount)
+  val sendTime = bench { implicit system =>
+    val actors = spawn(Props(classOf[IncrActor]), actorCount)
+    actors.foreach(system.eventStream.subscribe(_, Incr.getClass))
 
     var i = 0
     while (i < threshold) {
@@ -74,10 +62,10 @@ object BoxingVsRaw extends App {
     }
   }
 
-  println(s"boxing: $boxingTime")
-  println(s"raw: $rawTime")
+  println(s"event bus: $eventBusTime")
+  println(s"send: $sendTime")
 
-  // boxing: 3977.5629669900004 ms
-  // raw: 4360.2027032900005 ms
+  // event bus: 188.4252598 ms
+  // send: 9.8450212 ms
 
 }

@@ -1,9 +1,10 @@
 package taranis.core.events
 
+import taranis.core.Time
+
 final case class Spike(
-                      val origin: Long,
-                        var weight: Double = 1,
-                        var multiplicity: Int = 1,
-                        var delay: Long = 1,
+                        time: Time,
+                        var delay: Time,
+                        var weight: Double,
                         var port: Int = 1
                       )

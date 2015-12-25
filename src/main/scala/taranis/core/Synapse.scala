@@ -2,20 +2,19 @@ package taranis.core
 
 import akka.actor.ActorRef
 import taranis.core.Network.{AckTick, Calibrate, Tick}
-import taranis.core.Node
 import taranis.core.events.Spike
 
 abstract class Synapse extends Node {
 
   import Node._
 
-  private var postSynaptic: ActorRef = _
+  private var successor: ActorRef = _
 
   override def receive: Receive = {
 
-    case Register(neuron) =>
-      postSynaptic = neuron
-      //log.debug(s"$self register post-synaptic $neuron")
+    case Register(succ) =>
+      successor = succ
+      log.debug(s"register: $succ")
 
     case Calibrate(resolution) =>
       calibrate(resolution)
@@ -25,18 +24,16 @@ abstract class Synapse extends Node {
       sender ! AckTick
 
     case spike: Spike =>
-      handle(spike)
+      successor ! bridged(spike)
 
   }
 
-  def calibrate(resolution: Double): Unit = ()
+  def calibrate(resolution: Time): Unit = ()
 
-  def update(origin: Double): Unit = ()
+  def update(time: Time): Unit = ()
 
-  def handle(e: Spike): Unit = {
-    postSynaptic ! bridged(e)
-  }
+  def handle(spike: Spike): Unit = ()
 
-  def bridged(e: Spike): Spike
+  def bridged(spike: Spike): Spike
 
 }

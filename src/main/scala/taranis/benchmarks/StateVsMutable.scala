@@ -1,7 +1,7 @@
-package taranis.benchmark
+package taranis.benchmarks
 
 import akka.actor.{Actor, Props}
-import taranis.benchmark.StateVsMutable.Incr
+import taranis.benchmarks.StateVsMutable.Incr
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Promise}

@@ -7,7 +7,7 @@ import scala.annotation.tailrec
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
-package object benchmark {
+package object benchmarks {
 
   val meter = config(
     Key.exec.benchRuns -> 100,
