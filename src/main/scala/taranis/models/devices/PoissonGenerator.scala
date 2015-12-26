@@ -2,7 +2,7 @@ package taranis.models.devices
 
 import breeze.stats.distributions.Poisson
 import taranis.core.events.Spike
-import taranis.core.{Neuron, Parameters, Time}
+import taranis.core.{Neuron, Forge, Time}
 import taranis.models.devices.PoissonGenerator.withParams
 
 class PoissonGenerator(params: withParams) extends Neuron {
@@ -44,6 +44,6 @@ object PoissonGenerator {
                          rate: Double = 0,
                          start: Time = 0,
                          stop: Time = Double.MaxValue
-                       ) extends Parameters(classOf[PoissonGenerator])
+                       ) extends Forge[PoissonGenerator]
 
 }

@@ -1,7 +1,7 @@
 package taranis.models.neurons
 
 import taranis.core.events.Spike
-import taranis.core.{Neuron, Parameters, Time}
+import taranis.core.{Neuron, Forge, Time}
 import taranis.models.neurons.IafPscDeltaNeuron.withParams
 
 import scala.math.exp
@@ -89,6 +89,6 @@ object IafPscDeltaNeuron {
                          Vmin: Double = Double.MinValue,
                          Vreset: Double = 0,
                          withRefrInput: Boolean = false
-                       ) extends Parameters(classOf[IafPscDeltaNeuron])
+                       ) extends Forge[IafPscDeltaNeuron]
 
 }

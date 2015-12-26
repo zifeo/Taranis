@@ -2,7 +2,7 @@ package taranis.models.neurons
 
 import breeze.numerics.expm1
 import taranis.core.events.Spike
-import taranis.core.{Neuron, Parameters}
+import taranis.core.{Neuron, Forge}
 import taranis.models.neurons.IafNeuron.withParams
 
 import scala.math.{abs, exp}
@@ -112,7 +112,7 @@ object IafNeuron {
                          VReset: Double = 0,
                          theta: Double = 15,
                          Ie: Double = 0
-                       ) extends Parameters(classOf[IafNeuron])
+                       ) extends Forge[IafNeuron]
 
   object default extends withParams
 
