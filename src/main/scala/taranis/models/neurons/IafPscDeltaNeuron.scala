@@ -1,12 +1,12 @@
 package taranis.models.neurons
 
 import taranis.core.events.Spike
-import taranis.core.{Parameters, Neuron, Time}
-import taranis.models.neurons.IafPscDelta.withParams
+import taranis.core.{Neuron, Parameters, Time}
+import taranis.models.neurons.IafPscDeltaNeuron.withParams
 
 import scala.math.exp
 
-class IafPscDelta(params: withParams) extends Neuron {
+class IafPscDeltaNeuron(params: withParams) extends Neuron {
 
   import params._
 
@@ -50,8 +50,8 @@ class IafPscDelta(params: withParams) extends Neuron {
       y3 = if (y3 < Vmin) Vmin else y3
     } else {
 
-      if (withRefrInput)
-        refrspikesbuffer += bufferedSpike(time) * exp(r) * P33
+      //if (withRefrInput)
+      //  refrspikesbuffer += bufferedSpike(time) * exp(r) * P33
 
       r -= 1
     }
@@ -65,7 +65,7 @@ class IafPscDelta(params: withParams) extends Neuron {
 
 }
 
-object IafPscDelta {
+object IafPscDeltaNeuron {
 
   /**
     *
@@ -89,6 +89,6 @@ object IafPscDelta {
                          Vmin: Double = Double.MinValue,
                          Vreset: Double = 0,
                          withRefrInput: Boolean = false
-                       ) extends Parameters(classOf[IafPscDelta])
+                       ) extends Parameters(classOf[IafPscDeltaNeuron])
 
 }

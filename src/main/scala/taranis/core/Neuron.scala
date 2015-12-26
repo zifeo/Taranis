@@ -7,12 +7,16 @@ import taranis.models.devices.Multimeter
 
 import scala.collection.mutable
 
-abstract class Neuron extends Node {
+abstract class Neuron extends Entity {
 
   import Multimeter._
-  import Node._
+  import Entity._
+
+  //private val priors = mutable.AnyRefMap.empty[ActorRef, Node]
+  //private val successors = mutable.AnyRefMap.empty[ActorRef, Node]
 
   private val successors = mutable.ListBuffer.empty[ActorRef]
+
   private val recorders = mutable.Map.empty[ActorRef, List[Extractor[Neuron]]]
   protected var bufferedSpike = 0d
 

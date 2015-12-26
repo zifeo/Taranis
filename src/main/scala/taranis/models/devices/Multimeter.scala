@@ -1,7 +1,8 @@
 package taranis.models.devices
 
 import akka.actor.{Actor, ActorLogging}
-import taranis.core.Node.Register
+import taranis.core.Entity.Register
+import taranis.core.Recordable.{DataRecord, Extractor, BindRecord}
 import taranis.core.{Parameters, Time}
 import taranis.models.devices.Multimeter.withRecorders
 
@@ -21,10 +22,10 @@ case class Multimeter[T](params: withRecorders[T]) extends Actor with ActorLoggi
     case Register(node) =>
       log.debug(s"register: $node")
       recorders.foreach { recorder =>
-        node ! Record(recorder)
+        node ! BindRecord(recorder)
       }
 
-    case Data(time, label, value) =>
+    case DataRecord(time, label, value) =>
       records(label) += time -> value
 
     case Request =>
@@ -37,14 +38,6 @@ case class Multimeter[T](params: withRecorders[T]) extends Actor with ActorLoggi
 }
 
 object Multimeter {
-
-  type Extractor[T] = (String, T => Double)
-
-  type Records = Map[String, Seq[(Double, Double)]]
-
-  final case class Data(timestamp: Double, label: String, value: Double)
-
-  final case class Record[T](extractor: Extractor[T])
 
   object Request
 

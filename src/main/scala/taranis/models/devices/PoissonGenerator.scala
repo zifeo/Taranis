@@ -2,14 +2,16 @@ package taranis.models.devices
 
 import breeze.stats.distributions.Poisson
 import taranis.core.events.Spike
-import taranis.core.{Neuron, Time, Parameters}
+import taranis.core.{Neuron, Parameters, Time}
 import taranis.models.devices.PoissonGenerator.withParams
 
 class PoissonGenerator(params: withParams) extends Neuron {
 
   import params._
 
-  require(rate > 0, "The rate cannot be negative.")
+  require(rate > 0, "The rate cannot be negative nor null.")
+  require(start >= 0, "The start cannot be negative.")
+  require(stop > start, "The stop cannot be before the start.")
 
   var poisson: Poisson = _
 
@@ -18,18 +20,13 @@ class PoissonGenerator(params: withParams) extends Neuron {
   }
 
   def update(time: Time): Unit = {
-    if (rate > 0) {
+    if (rate > 0 && time >= start && time < stop) {
 
       val spikeCount = poisson.sample()
-      if (spikeCount > 0) {
 
-        val spike = Spike(time = time, delay = 1, weight = 1)
-        var i = 0
-        while (i < spikeCount) {
-          send(spike)
-          i += 1
-        }
-      }
+      if (spikeCount > 0)
+        send(Spike(time = time, delay = 1, weight = spikeCount))
+
     }
   }
 

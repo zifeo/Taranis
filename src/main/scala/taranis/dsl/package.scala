@@ -7,9 +7,9 @@ import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.pattern.ask
 import akka.util.Timeout
 import breeze.plot.Plot
+import taranis.core.Entity.Register
 import taranis.core.Network.Simulate
-import taranis.core.Node.Register
-import taranis.core.{Network, Node, Parameters}
+import taranis.core.{Entity, Network, Parameters}
 import taranis.models.devices.Multimeter.{Records, Request}
 
 import scala.concurrent.duration._
@@ -29,7 +29,7 @@ package object dsl {
     val className = elem.kind.getSimpleName
     val ref = system.actorOf(Props(elem.kind, elem), s"$identity:$className")
 
-    if (classOf[Node].isAssignableFrom(elem.kind))
+    if (classOf[Entity].isAssignableFrom(elem.kind))
       network ! Register(ref)
 
     ref

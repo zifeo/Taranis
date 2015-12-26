@@ -1,8 +1,15 @@
 package taranis.models.devices
 
-import taranis.core.Parameters
+import taranis.core.{Time, Parameters}
+import taranis.models.devices.SpikeDetector.withParams
 
-class SpikeDetector {
+import scala.collection.mutable
+
+class SpikeDetector(params: withParams) {
+
+  import params._
+
+  val history = mutable.ListBuffer.empty[(Time, Double)]
 
 }
 
@@ -10,6 +17,6 @@ object SpikeDetector {
 
   case class withParams() extends Parameters(classOf[SpikeDetector])
 
-  case object default extends withParams
+  object default extends withParams
 
 }

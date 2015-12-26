@@ -13,8 +13,6 @@ case class StaticSynapse(params: withParams) extends Synapse {
   def update(time: Time): Unit = ()
 
   def handle(spike: Spike): Unit = {
-    spike.weight = weight
-    spike.delay = delay
     send(spike)
   }
 

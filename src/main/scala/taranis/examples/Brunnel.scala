@@ -39,7 +39,7 @@ object Brunnel extends App {
   val nu_ex  = eta*nu_th
   val p_rate = 1000.0*nu_ex*CE
 
-  val neuron = IafPscDelta.withParams(
+  val neuron = IafPscDeltaNeuron.withParams(
     Cm =        1.0,
     tauM =      tauMem,
     tRef =      2.0,
@@ -71,15 +71,15 @@ object Brunnel extends App {
   connect(nodes_in.dropRight(N_rec), ispikes, excitatory)
 
   //conn_params_ex = {'rule': 'fixed_indegree', 'indegree': CE}
-  connect(nodes_ex, nodes_ex ++ nodes_in, conn_params_ex, excitatory)
+  //connect(nodes_ex, nodes_ex ++ nodes_in, conn_params_ex, excitatory)
 
   //conn_params_in = {'rule': 'fixed_indegree', 'indegree': CI}
-  connect(nodes_in, nodes_ex ++ nodes_in, conn_params_in, inhibitory)
+  //connect(nodes_in, nodes_ex ++ nodes_in, conn_params_in, inhibitory)
 
   simulate(simtime, dt)
 
   val events_ex = data(espikes)("n_events")
 
-  nest.raster_plot.from_device(espikes, hist=True)
+  //nest.raster_plot.from_device(espikes, hist=True)
 
 }

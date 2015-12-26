@@ -1,7 +1,7 @@
 package taranis.core
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import taranis.core.Node.Register
+import taranis.core.Entity.Register
 
 import scala.collection.mutable
 import scala.concurrent.Promise
@@ -80,6 +80,6 @@ object Network {
 
   final case class Tick(time: Time)
 
-  final object AckTick
+   object AckTick
 
 }

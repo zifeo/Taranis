@@ -4,9 +4,9 @@ import akka.actor.ActorRef
 import taranis.core.Network.{AckTick, Calibrate, Tick}
 import taranis.core.events.Spike
 
-abstract class Synapse extends Node {
+abstract class Synapse extends Entity {
 
-  import Node._
+  import Entity._
 
   private var successor: ActorRef = _
 
