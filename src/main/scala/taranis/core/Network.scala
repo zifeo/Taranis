@@ -25,6 +25,8 @@ class Network extends Actor with ActorLogging {
       log.debug(s"register: $entity")
 
     case Simulate(duration, resolution, termination) =>
+      tickAcks = 0
+      nextTick = 0
       context.become(simulating(
         nodes.size,
         duration.toUnit(MILLISECONDS),
