@@ -11,33 +11,33 @@ import scala.language.postfixOps
 
 object Brunnel extends App {
 
-  val dt      = 0.1 millisecond   // the resolution in ms
+  val dt      = 1 millisecond // the resolution in ms
   val simtime = 1000 milliseconds // Simulation time in ms
-  val delay   = 1.5    // synaptic delay in ms
+  val delay   = 1.5 // synaptic delay in ms
 
-  val g       = 5.0  // ratio inhibitory weight/excitatory weight
-  val eta     = 2.0  // external rate relative to threshold rate
-  val epsilon = 0.1  // connection probability
+  val g       = 5.0 // ratio inhibitory weight/excitatory weight
+  val eta     = 2.0 // external rate relative to threshold rate
+  val epsilon = 0.1 // connection probability
 
-  val order     = 2500
-  val NE        = 4*order // number of excitatory neurons
-  val NI        = 1*order // number of inhibitory neurons
-  val N_neurons = NE+NI   // number of neurons in total
-  val N_rec     = 50      // record from 50 neurons
+  val order     = 250
+  val NE        = 4 * order // number of excitatory neurons
+  val NI        = 1 * order // number of inhibitory neurons
+  val N_neurons = NE + NI // number of neurons in total
+  val N_rec     = 50 // record from 50 neurons
 
-  val CE    = (epsilon*NE).toInt // number of excitatory synapses per neuron
-  val CI    = (epsilon*NI).toInt // number of inhibitory synapses per neuron
-  val C_tot = CI+CE              // total number of synapses per neuron
+  val CE    = (epsilon * NE).toInt // number of excitatory synapses per neuron
+  val CI    = (epsilon * NI).toInt // number of inhibitory synapses per neuron
+  val C_tot = CI + CE // total number of synapses per neuron
 
-  val tauMem = 20.0   // time constant of membrane potential in ms
-  val theta  = 20.0   // membrane threshold potential in mV
-  val J     = 0.1     // postsynaptic amplitude in mV
-  val J_ex  = J       // amplitude of excitatory postsynaptic potential
-  val J_in  = -g*J_ex // amplitude of inhibitory postsynaptic potential
+  val tauMem = 20.0 // time constant of membrane potential in ms
+  val theta  = 20.0 // membrane threshold potential in mV
+  val J     = 0.1 // postsynaptic amplitude in mV
+  val J_ex  = J // amplitude of excitatory postsynaptic potential
+  val J_in  = -g * J_ex // amplitude of inhibitory postsynaptic potential
 
-  val nu_th  = theta/(J*CE*tauMem)
-  val nu_ex  = eta*nu_th
-  val p_rate = 1000.0*nu_ex*CE
+  val nu_th  = theta / (J * CE * tauMem)
+  val nu_ex  = eta * nu_th
+  val p_rate = 1000.0 * nu_ex * CE
 
   val neuron = IafPscDeltaNeuron.withParams(
     Cm =        1.0,
@@ -70,16 +70,30 @@ object Brunnel extends App {
   connect(nodes_ex.dropRight(N_rec), espikes, excitatory)
   connect(nodes_in.dropRight(N_rec), ispikes, excitatory)
 
-  //conn_params_ex = {'rule': 'fixed_indegree', 'indegree': CE}
-  //connect(nodes_ex, nodes_ex ++ nodes_in, conn_params_ex, excitatory)
-
-  //conn_params_in = {'rule': 'fixed_indegree', 'indegree': CI}
-  //connect(nodes_in, nodes_ex ++ nodes_in, conn_params_in, inhibitory)
+  connect(nodes_ex, nodes_ex ++ nodes_in, excitatory, mapping = CE)
+  connect(nodes_in, nodes_ex ++ nodes_in, inhibitory, mapping = CI)
 
   simulate(simtime, dt)
 
-  val events_ex = data(espikes)("n_events")
+  val events_ex = data(espikes)("spikes")
+  val (xs, ys) = events_ex.unzip
+  val eventsCount = events_ex.size
+  println(s"events: $eventsCount")
 
-  //nest.raster_plot.from_device(espikes, hist=True)
+  val f = Figure()
+  val p1 = f.subplot(2, 1, 0)
+  val p2 = f.subplot(2, 1, 1)
+  /*p.xlabel = "Time (ms)"
+  p.ylabel = "Membrane potential (mV)"
+  p.legend = true
+  p.title = "Membrane potential"
+  p.xlim = (0, 100)
+  p.ylim = (-70, -69.3)
+  p.setYAxisDecimalTickUnits()*/
+  p1 += scatter(xs, ys, _ => 1)
+  p1.xaxis.setVisible(false)
+  p2 += hist(xs, bins = simtime.toMillis.toInt)
+  p2.xlabel = "Time (ms)"
+  p2.ylabel = "Rate (hz)"
 
 }

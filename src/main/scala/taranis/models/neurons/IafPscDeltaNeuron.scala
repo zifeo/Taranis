@@ -67,8 +67,13 @@ class IafPscDeltaNeuron(params: withParams) extends Neuron {
 
   override def update(time: Time): Unit = {
 
+    val spikesSum = events(time).foldLeft(0.0) {
+      case (sum, Spike(_, _, w)) => sum + w * 10
+      case (sum, _) => sum
+    }
+
     if (r == 0) {
-      y3 = P30 * ( y0 + Ie ) + P33 * y3
+      y3 = P30 * ( y0 + Ie ) + P33 * y3 + spikesSum
 
       if (withRefrInput && refrspikesbuffer != 0.0) {
         y3 += refrspikesbuffer
@@ -78,8 +83,8 @@ class IafPscDeltaNeuron(params: withParams) extends Neuron {
       y3 = if (y3 < Vmin) Vmin else y3
     } else {
 
-      //if (withRefrInput)
-      //  refrspikesbuffer += bufferedSpike(time) * exp(r) * P33
+      if (withRefrInput)
+        refrspikesbuffer += spikesSum * exp(r) * P33
 
       r -= 1
     }

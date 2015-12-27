@@ -19,6 +19,7 @@ import scala.annotation.tailrec
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Promise}
 import scala.language.postfixOps
+import scala.util.Random
 
 package object dsl {
 
@@ -61,21 +62,40 @@ package object dsl {
     pre ! BindRecorder(post)
 
   def connect(pre: ActorRef, post: ActorRef): Unit =
-    connect(List(pre), List(post), IdentityDynamics.default, IdentityDynamics.default)
+    connect(List(pre), List(post), IdentityDynamics.default, IdentityDynamics.default, 0)
 
   def connect[T <: EventDynamics](pre: ActorRef, post: ActorRef, predyn: Forge[T]): Unit =
-    connect(List(pre), List(post), predyn, IdentityDynamics.default)
+    connect(List(pre), List(post), predyn, IdentityDynamics.default, 0)
 
   def connect[T <: EventDynamics](pre: ActorRef, posts: List[ActorRef], predyn: Forge[T]): Unit =
-    connect(List(pre), posts, predyn, IdentityDynamics.default)
+    connect(List(pre), posts, predyn, IdentityDynamics.default, 0)
 
   def connect[T <: EventDynamics](pres: List[ActorRef], post: ActorRef, predyn: Forge[T]): Unit =
-    connect(pres, List(post), predyn, IdentityDynamics.default)
+    connect(pres, List(post), predyn, IdentityDynamics.default, 0)
 
-  def connect[T <: EventDynamics](pres: List[ActorRef], posts: List[ActorRef], predyn: Forge[T], postdyn: Forge[T]): Unit = {
-    pres.foreach(_ ! BindSuccessors(posts.map(_ -> spawnS(predyn))))
-    posts.foreach(_ ! BindPriors(pres.map(_ -> spawnS(postdyn))))
-  }
+  def connect[T <: EventDynamics](pres: List[ActorRef], posts: List[ActorRef], predyn: Forge[T], mapping: Int): Unit =
+    connect(pres, posts, predyn, IdentityDynamics.default, mapping)
+
+  def connect[T <: EventDynamics](pres: List[ActorRef], posts: List[ActorRef], predyn: Forge[T], postdyn: Forge[T], mapping: Int): Unit =
+    mapping match {
+      case 0 => // all to all
+        pres.foreach(_ ! BindSuccessors(posts.map(_ -> spawnS(predyn))))
+        posts.foreach(_ ! BindPriors(pres.map(_ -> spawnS(postdyn))))
+      case 1 => // one to one
+        require(pres.size == posts.size, "pres and posts list must have the same size with one to one")
+        pres.zip(posts).foreach { case (pre, post) =>
+          pre ! BindSuccessors(List(post -> spawnS(predyn)))
+          post ! BindPriors(List(pre -> spawnS(postdyn)))
+        }
+      case n =>
+        posts.foreach { post =>
+          val selected = Random.shuffle(pres).take(n)
+          selected.foreach { pre =>
+            pre ! BindSuccessors(List(post -> spawnS(predyn)))
+          }
+          post ! BindPriors(selected.map(_ -> spawnS(postdyn)))
+        }
+    }
 
   def simulate(time: Duration, resolution: Duration = Network.defaultResolution): Unit = {
     val termination = Promise[Unit]()

@@ -44,6 +44,7 @@ class Network extends Actor with ActorLogging {
     tickNodes()
 
     def tickNodes(): Unit = {
+      if (nextTick % 100 == 0) println(nextTick)
       val tick = Tick(nextTick)
       nodes.foreach(_ ! tick)
       nextTick += resolution

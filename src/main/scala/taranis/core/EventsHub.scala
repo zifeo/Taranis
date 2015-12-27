@@ -17,7 +17,8 @@ trait EventsHub extends Entity {
   abstract override def receive: Receive = {
 
     val receiveEvent = { case event: Event =>
-      eventsBuffer += priors(sender).handle(event)
+      if (priors.contains(sender))
+        eventsBuffer += priors(sender).handle(event)
     }: Receive
 
     val manageDynamics = {

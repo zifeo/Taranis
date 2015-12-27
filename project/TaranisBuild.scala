@@ -49,7 +49,8 @@ object TaranisBuild extends Build {
 
       target in (Compile, doc) := baseDirectory.value / "api",
 
-      javaOptions in run <++= AspectjKeys.weaverOptions in Aspectj
+      javaOptions += "-Xmx1G"
+      //javaOptions in run <++= AspectjKeys.weaverOptions in Aspectj
 
     )
 

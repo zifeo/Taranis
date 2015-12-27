@@ -1,7 +1,8 @@
 package taranis.models.devices
 
-import taranis.core.dynamics.Dynamics
-import taranis.core.{Entity, Time, Forge}
+import taranis.core.events.Spike
+import taranis.core.{Forge, Neuron, Time}
+import taranis.models.devices.Multimeter.Metrics
 import taranis.models.devices.SpikeDetector.withParams
 
 import scala.collection.mutable
@@ -14,14 +15,25 @@ object SpikeDetector {
 
 }
 
-final class SpikeDetector(params: withParams) extends Entity with Dynamics {
-
-  import params._
+final class SpikeDetector(params: withParams) extends Neuron {
 
   val history = mutable.ListBuffer.empty[(Time, Double)]
 
-  override def calibrate(resolution: Time): Unit = ()
+  override def receive: Receive = {
 
-  override def update(time: Time): Unit = ()
+    val catchSpike = { case Spike(time, _, _) =>
+      history += time -> sender.hashCode()
+    }: Receive
+
+    val getMetrics = { case Metrics =>
+      sender ! Map("spikes" -> history.toList)
+    }: Receive
+
+    catchSpike.orElse(super.receive).orElse(getMetrics)
+  }
+
+  override def calibrate(resolution: Time): Unit = super.calibrate(resolution)
+
+  override def update(time: Time): Unit = super.update(time)
 
 }
