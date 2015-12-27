@@ -1,7 +1,8 @@
 package taranis.models.synapses
 
-import taranis.core.events.Event
-import taranis.core.{Forge, Synapse, Time}
+import taranis.core.dynamics.EventDynamics
+import taranis.core.events.{Event, Spike}
+import taranis.core.{Forge, Time}
 import taranis.models.synapses.StaticSynapse.withParams
 
 object StaticSynapse {
@@ -12,14 +13,16 @@ object StaticSynapse {
 
 }
 
-final class StaticSynapse(params: withParams) extends Synapse {
+final class StaticSynapse(params: withParams) extends EventDynamics {
+
+  import params._
 
   override def update(time: Time): Unit = ()
 
   override def calibrate(resolution: Time): Unit = ()
 
   override val handle: PartialFunction[Event, Event] = {
-    case e => e
+    case e: Spike => e.copy(delay = delay, weight = weight)
   }
 
 }

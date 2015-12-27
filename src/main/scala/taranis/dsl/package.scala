@@ -13,7 +13,7 @@ import taranis.core.Records.RecordedData
 import taranis.core._
 import taranis.core.dynamics.EventDynamics
 import taranis.models.devices.Multimeter.{BindRecorder, Metrics}
-import taranis.models.synapses.StaticSynapse
+import taranis.models.synapses.IdentityDynamics
 
 import scala.annotation.tailrec
 import scala.concurrent.duration._
@@ -37,7 +37,7 @@ package object dsl {
     ref
   }
 
-  private def spawnS[T <: Synapse](elem: Forge[T]): EventDynamics = {
+  private def spawnS[T <: EventDynamics](elem: Forge[T]): EventDynamics = {
     identity += 1
     val constructor = elem.forgee.getDeclaredConstructors.head
     constructor.setAccessible(true)
@@ -61,18 +61,18 @@ package object dsl {
     pre ! BindRecorder(post)
 
   def connect(pre: ActorRef, post: ActorRef): Unit =
-    connect(List(pre), List(post), StaticSynapse.default, StaticSynapse.default)
+    connect(List(pre), List(post), IdentityDynamics.default, IdentityDynamics.default)
 
-  def connect[T <: Synapse](pre: ActorRef, post: ActorRef, predyn: Forge[T]): Unit =
-    connect(List(pre), List(post), predyn, StaticSynapse.default)
+  def connect[T <: EventDynamics](pre: ActorRef, post: ActorRef, predyn: Forge[T]): Unit =
+    connect(List(pre), List(post), predyn, IdentityDynamics.default)
 
-  def connect[T <: Synapse](pre: ActorRef, posts: List[ActorRef], predyn: Forge[T]): Unit =
-    connect(List(pre), posts, predyn, StaticSynapse.default)
+  def connect[T <: EventDynamics](pre: ActorRef, posts: List[ActorRef], predyn: Forge[T]): Unit =
+    connect(List(pre), posts, predyn, IdentityDynamics.default)
 
-  def connect[T <: Synapse](pres: List[ActorRef], post: ActorRef, predyn: Forge[T]): Unit =
-    connect(pres, List(post), predyn, StaticSynapse.default)
+  def connect[T <: EventDynamics](pres: List[ActorRef], post: ActorRef, predyn: Forge[T]): Unit =
+    connect(pres, List(post), predyn, IdentityDynamics.default)
 
-  def connect[T <: Synapse](pres: List[ActorRef], posts: List[ActorRef], predyn: Forge[T], postdyn: Forge[T]): Unit = {
+  def connect[T <: EventDynamics](pres: List[ActorRef], posts: List[ActorRef], predyn: Forge[T], postdyn: Forge[T]): Unit = {
     pres.foreach(_ ! BindSuccessors(posts.map(_ -> spawnS(predyn))))
     posts.foreach(_ ! BindPriors(pres.map(_ -> spawnS(postdyn))))
   }

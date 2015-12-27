@@ -34,7 +34,7 @@ object TwoNeurons extends App {
   p.legend = true
   p.title = "Membrane potential"
   p.xlim = (0, 100)
-  //p.ylim = (-70, -69.3)
+  p.ylim = (-70, -69.3)
   p.setYAxisDecimalTickUnits()
   p += plot(xs, ys, name = "Neuron 2")
 
