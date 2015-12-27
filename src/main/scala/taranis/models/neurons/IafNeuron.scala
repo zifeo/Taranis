@@ -2,12 +2,39 @@ package taranis.models.neurons
 
 import breeze.numerics.expm1
 import taranis.core.events.Spike
-import taranis.core.{Neuron, Forge}
+import taranis.core.{Forge, Neuron}
 import taranis.models.neurons.IafNeuron.withParams
 
 import scala.math.{abs, exp}
 
-class IafNeuron(params: withParams) extends Neuron {
+object IafNeuron {
+
+  /**
+    * @param C membrane capacitance in pF
+    * @param tau membrane time constant in ms
+    * @param tauSyn time constant of synaptic current in ms
+    * @param tauR refractory period in ms
+    * @param U0 resting potential in mV
+    * @param VReset reset value of the membrane potential in mV
+    * @param theta threshold in mV
+    * @param Ie external current in pA
+    */
+  case class withParams(
+                         C: Double = 250,
+                         tau: Double = 10,
+                         tauSyn: Double = 2,
+                         tauR: Double = 2,
+                         U0: Double = -70,
+                         VReset: Double = 0,
+                         theta: Double = 15,
+                         Ie: Double = 0
+                       ) extends Forge[IafNeuron]
+
+  object default extends withParams
+
+}
+
+final class IafNeuron(params: withParams) extends Neuron {
 
   import params._
 
@@ -36,7 +63,9 @@ class IafNeuron(params: withParams) extends Neuron {
   def Vm: Double =
     y3 + U0
 
-  def calibrate(resolution: Double): Unit = {
+  override def calibrate(resolution: Double): Unit = {
+    super.calibrate(resolution)
+
     P11 = exp(-resolution / tauSyn)
     P22 = P11
     P33 = exp(-resolution / tau)
@@ -48,15 +77,22 @@ class IafNeuron(params: withParams) extends Neuron {
     refractoryCounts = (tauR / resolution).toInt
   }
 
-  def update(time: Double): Unit = {
+  override def update(time: Double): Unit = {
+    super.update(time)
+
     if (r == 0)
       y3 = P30 * (y0 + Ie) + P31 * y1 + P32 * y2 + P33 * y3
     else
       r -= 1
 
+    val spikesSum = events(time).foldLeft(0.0) {
+      case (sum, Spike(_, _, w)) => sum + w
+      case (sum, _) => sum
+    }
+
     y2 = P21 * y1 + P22 * y2
     y1 *= P11
-    y1 += PSCInitialValue * bufferedSpike
+    y1 += PSCInitialValue * spikesSum
 
     if (y3 >= theta) {
       y3 = VReset
@@ -88,32 +124,5 @@ class IafNeuron(params: withParams) extends Neuron {
     else
       P32
   }
-
-}
-
-object IafNeuron {
-
-  /**
-    * @param C membrane capacitance in pF
-    * @param tau membrane time constant in ms
-    * @param tauSyn time constant of synaptic current in ms
-    * @param tauR refractory period in ms
-    * @param U0 resting potential in mV
-    * @param VReset reset value of the membrane potential in mV
-    * @param theta threshold in mV
-    * @param Ie external current in pA
-    */
-  case class withParams(
-                         C: Double = 250,
-                         tau: Double = 10,
-                         tauSyn: Double = 2,
-                         tauR: Double = 2,
-                         U0: Double = -70,
-                         VReset: Double = 0,
-                         theta: Double = 15,
-                         Ie: Double = 0
-                       ) extends Forge[IafNeuron]
-
-  object default extends withParams
 
 }

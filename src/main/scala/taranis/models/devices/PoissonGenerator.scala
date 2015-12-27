@@ -5,33 +5,6 @@ import taranis.core.events.Spike
 import taranis.core.{Neuron, Forge, Time}
 import taranis.models.devices.PoissonGenerator.withParams
 
-class PoissonGenerator(params: withParams) extends Neuron {
-
-  import params._
-
-  require(rate > 0, "The rate cannot be negative nor null.")
-  require(start >= 0, "The start cannot be negative.")
-  require(stop > start, "The stop cannot be before the start.")
-
-  var poisson: Poisson = _
-
-  def calibrate(resolution: Time): Unit = {
-    poisson = Poisson(resolution * 1e-3 * rate)
-  }
-
-  def update(time: Time): Unit = {
-    if (rate > 0 && time >= start && time < stop) {
-
-      val spikeCount = poisson.sample()
-
-      if (spikeCount > 0)
-        send(Spike(time = time, delay = 1, weight = spikeCount))
-
-    }
-  }
-
-}
-
 object PoissonGenerator {
 
   /**
@@ -45,5 +18,32 @@ object PoissonGenerator {
                          start: Time = 0,
                          stop: Time = Double.MaxValue
                        ) extends Forge[PoissonGenerator]
+
+}
+
+final class PoissonGenerator(params: withParams) extends Neuron {
+
+  import params._
+
+  require(rate > 0, "The rate cannot be negative nor null.")
+  require(start >= 0, "The start cannot be negative.")
+  require(stop > start, "The stop cannot be before the start.")
+
+  var poisson: Poisson = _
+
+  override def calibrate(resolution: Time): Unit = {
+    poisson = Poisson(resolution * 1e-3 * rate)
+  }
+
+  override def update(time: Time): Unit = {
+    if (rate > 0 && time >= start && time < stop) {
+
+      val spikeCount = poisson.sample()
+
+      if (spikeCount > 0)
+        send(Spike(time = time, delay = 1, weight = spikeCount))
+
+    }
+  }
 
 }

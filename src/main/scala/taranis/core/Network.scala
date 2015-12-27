@@ -1,7 +1,6 @@
 package taranis.core
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import taranis.core.Entity.Register
 
 import scala.collection.mutable
 import scala.concurrent.Promise
@@ -21,9 +20,9 @@ class Network extends Actor with ActorLogging {
 
   def setup: Receive = {
 
-    case Register(node) =>
-      nodes += node
-      log.debug(s"register: $node")
+    case BindEntity(entity) =>
+      nodes += entity
+      log.debug(s"register: $entity")
 
     case Simulate(duration, resolution, termination) =>
       context.become(simulating(
@@ -49,19 +48,18 @@ class Network extends Actor with ActorLogging {
       tickAcks = 0
     }
 
-    {
-      case AckTick =>
-        tickAcks += 1
+    { case AckTick =>
+      tickAcks += 1
 
-        if (tickAcks == networkSize) {
-          if (nextTick < duration)
-            tickNodes()
-          else {
-            termination.success(())
-            context.become(setup)
-            log.debug(s"terminate simulation")
-          }
+      if (tickAcks == networkSize) {
+        if (nextTick < duration)
+          tickNodes()
+        else {
+          termination.success(())
+          context.become(setup)
+          log.debug(s"terminate simulation")
         }
+      }
     }
   }
 
@@ -74,12 +72,14 @@ object Network {
   def props: Props =
     Props(new Network)
 
+  final case class BindEntity(entity: ActorRef)
+
   final case class Simulate(duration: Duration, resolution: Duration = defaultResolution, termination: Promise[Unit])
 
   final case class Calibrate(resolution: Time)
 
   final case class Tick(time: Time)
 
-   object AckTick
+  object AckTick
 
 }

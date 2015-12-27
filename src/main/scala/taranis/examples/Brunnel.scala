@@ -56,8 +56,8 @@ object Brunnel extends App {
     delay = delay
   )
 
-  val nodes_ex = create(NE)(neuron)
-  val nodes_in = create(NI)(neuron)
+  val nodes_ex = create(NE, neuron)
+  val nodes_in = create(NI, neuron)
   val noise    = create(PoissonGenerator.withParams(
     rate = p_rate
   ))

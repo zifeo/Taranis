@@ -22,7 +22,7 @@ object TwoNeurons extends App {
   ))
 
   connect(neuron1, neuron2, StaticSynapse.withParams(weight = weight, delay = delay))
-  connect(multimeter, neuron2)
+  connectD(multimeter, neuron2)
 
   simulate(100 milliseconds, 1 millisecond)
 
@@ -34,10 +34,11 @@ object TwoNeurons extends App {
   p.legend = true
   p.title = "Membrane potential"
   p.xlim = (0, 100)
-  p.ylim = (-70, -69.3)
+  //p.ylim = (-70, -69.3)
   p.setYAxisDecimalTickUnits()
   p += plot(xs, ys, name = "Neuron 2")
 
+  //noGUI(p)
   terminate()
 
 }

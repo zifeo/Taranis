@@ -1,38 +1,53 @@
 package taranis.models.devices
 
-import akka.actor.{Actor, ActorLogging}
-import taranis.core.Recordable.{DataRecord, Extractor}
-import taranis.core.{Forge, Time}
-import taranis.models.devices.Multimeter.{Request, withRecorders}
+import akka.actor.ActorRef
+import taranis.core.Records.{BindRecord, DataRecord, Extractor}
+import taranis.core.dynamics.Dynamics
+import taranis.core.{Entity, Forge, Time}
+import taranis.models.devices.Multimeter.{BindRecorder, Metrics, withRecorders}
 
 import scala.collection.mutable
 
 object Multimeter {
 
-  object Request
+  object Metrics
 
   case class withRecorders[T](recorders: Extractor[T]*) extends Forge[Multimeter[T]]
 
+  case class BindRecorder(node: ActorRef)
+
 }
 
-final class Multimeter[T](params: withRecorders[T]) extends Actor with ActorLogging {
+final class Multimeter[T](params: withRecorders[T]) extends Entity with Dynamics {
 
   import params._
 
-  val records = recorders.toMap.map { case (label, _) =>
-    label -> mutable.ListBuffer.empty[(Time, Double)]
+  val records = mutable.AnyRefMap(recorders: _*).map { case (label, _) =>
+    label -> mutable.ArrayBuffer.empty[(Time, Double)]
   }
 
-  override def receive: Receive = {
+  override def receive: Receive =
+    super.receive.orElse {
 
-    case DataRecord(time, label, value) =>
-      records(label) += time -> value
+      case BindRecorder(node) =>
+        recorders.foreach { extractor =>
+          node ! BindRecord(self, extractor)
+        }
+        log.debug(s"register: $node")
 
-    case Request =>
-      val data = records.map { case (label, recorded) =>
-        label -> recorded.toSeq
-      }
-      sender ! data
+      case DataRecord(time, label, value) =>
+        records(label) += time -> value
 
-  }
+      case Metrics =>
+        val data = records.map { case (label, recorded) =>
+          label -> recorded.toList
+        }.toMap
+        sender ! data
+
+    }
+
+  override def calibrate(resolution: Time): Unit = ()
+
+  override def update(time: Time): Unit = ()
+
 }

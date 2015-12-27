@@ -1,3 +1,16 @@
 package taranis.core.events
 
-trait Event
+import taranis.core.Time
+
+trait Event {
+
+  val time: Time
+
+  val delay: Time
+
+  final val delivery: Time = time + delay
+
+  final def informative: EventInfo = EventInfo(this)
+
+}
+

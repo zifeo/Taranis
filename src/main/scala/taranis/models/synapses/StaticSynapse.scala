@@ -1,25 +1,25 @@
 package taranis.models.synapses
 
-import taranis.core.events.Spike
+import taranis.core.events.Event
 import taranis.core.{Forge, Synapse, Time}
 import taranis.models.synapses.StaticSynapse.withParams
 
-case class StaticSynapse(params: withParams) extends Synapse {
+object StaticSynapse {
 
-  import params._
+  case class withParams(weight: Double = 1, delay: Time = 1) extends Forge[StaticSynapse]
 
-  def calibrate(resolution: Time): Unit = ()
-
-  def update(time: Time): Unit = ()
-
-  def handle(spike: Spike): Unit = {
-    send(spike)
-  }
+  object default extends withParams
 
 }
 
-object StaticSynapse {
+final class StaticSynapse(params: withParams) extends Synapse {
 
-  case class withParams(weight: Double, delay: Time) extends Forge[StaticSynapse]
+  override def update(time: Time): Unit = ()
+
+  override def calibrate(resolution: Time): Unit = ()
+
+  override val handle: PartialFunction[Event, Event] = {
+    case e => e
+  }
 
 }
