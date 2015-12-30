@@ -11,7 +11,9 @@ class Network extends Actor with ActorLogging {
 
   import Network._
 
-  private val nodes = mutable.Set.empty[ActorRef]
+  private val nodes = mutable.ListBuffer.empty[ActorRef]
+  private val subnetworkThreshold = 64
+  private var currentSubnetworkCount = subnetworkThreshold
 
   private var tickAcks = 0
   private var nextTick = 0: Time
@@ -20,8 +22,15 @@ class Network extends Actor with ActorLogging {
 
   def setup: Receive = {
 
-    case BindEntity(entity) =>
-      nodes += entity
+    case b : BindEntity =>
+      if (currentSubnetworkCount >= subnetworkThreshold) {
+        currentSubnetworkCount = 0
+        spawnSubnet()
+      }
+      nodes.last ! b
+      currentSubnetworkCount += 1
+
+      //nodes += b.entity
       //log.debug(s"register: $entity")
 
     case Simulate(duration, resolution, termination) =>
@@ -37,6 +46,11 @@ class Network extends Actor with ActorLogging {
 
   }
 
+  def spawnSubnet(): Unit = {
+    val subnetworksCount = nodes.size
+    nodes += context.system.actorOf(Props(classOf[Subnetwork], self), s"subnetwork-$subnetworksCount")
+  }
+
   def simulating(networkSize: Int, duration: Time, resolution: Time, termination: Promise[Unit]): Receive = {
 
     val calibration = Calibrate(resolution)
@@ -44,7 +58,7 @@ class Network extends Actor with ActorLogging {
     tickNodes()
 
     def tickNodes(): Unit = {
-      if (nextTick % 10 == 0) println(nextTick)
+      if (math.round(nextTick) % 100 == 0) println(nextTick)
       val tick = Tick(nextTick)
       nodes.foreach(_ ! tick)
       nextTick += resolution
@@ -64,6 +78,39 @@ class Network extends Actor with ActorLogging {
         }
       }
     }
+  }
+
+}
+
+class Subnetwork(network: ActorRef) extends Actor with ActorLogging {
+
+  import Network._
+
+  private val nodes = mutable.Set.empty[ActorRef]
+
+  private var tickAcks = 0
+  private var nodesCount = 0
+
+  def receive: Receive = {
+
+    case AckTick =>
+      tickAcks += 1
+      if (tickAcks == nodesCount) {
+        network ! AckTick
+        tickAcks = 0
+      }
+
+    case t: Tick =>
+      nodes.foreach(_ ! t)
+
+    case c: Calibrate =>
+      nodes.foreach(_ ! c)
+      nodesCount = nodes.size
+
+    case BindEntity(entity) =>
+      nodes += entity
+      //log.debug(s"register: $entity")
+
   }
 
 }

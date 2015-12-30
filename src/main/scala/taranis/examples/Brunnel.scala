@@ -23,7 +23,7 @@ object Brunnel extends App {
   val eta     = 2.0 // external rate relative to threshold rate
   val epsilon = 0.1 // connection probability
 
-  val order     = 2500
+  val order     = 500
   val NE        = 4 * order // number of excitatory neurons
   val NI        = 1 * order // number of inhibitory neurons
   val N_neurons = NE + NI // number of neurons in total

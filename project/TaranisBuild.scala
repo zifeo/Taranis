@@ -46,10 +46,11 @@ object TaranisBuild extends Build {
 
       assemblyJarName in assembly := "taranis.jar",
       test in assembly := {},
+      mainClass in assembly := Some("taranis.examples.Brunnel"),
 
       target in (Compile, doc) := baseDirectory.value / "api",
 
-      javaOptions += "-Xmx2G"
+      javaOptions += "-Xmx4G"
       //,javaOptions in run <++= AspectjKeys.weaverOptions in Aspectj
 
     )

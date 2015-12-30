@@ -6,7 +6,7 @@ trait Event {
 
   val time: Time
 
-  val delay: Time
+  var delay: Time
 
   final val delivery: Time = time + delay
 

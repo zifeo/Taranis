@@ -2,5 +2,5 @@ package taranis.core.events
 
 import taranis.core.Time
 
-final case class Spike(time: Time, delay: Time, weight: Double) extends Event
+final case class Spike(time: Time, var delay: Time, var weight: Double) extends Event
 
