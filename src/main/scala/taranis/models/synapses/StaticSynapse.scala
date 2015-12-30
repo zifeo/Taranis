@@ -22,7 +22,7 @@ final class StaticSynapse(params: withParams) extends EventDynamics {
   override def calibrate(resolution: Time): Unit = ()
 
   override val handle: PartialFunction[Event, Event] = {
-    case e: Spike => e.copy(delay = delay, weight = weight)
+    case e: Spike => e.copy(delay = delay, weight = e.weight * weight)
   }
 
 }

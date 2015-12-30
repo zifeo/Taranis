@@ -22,7 +22,7 @@ class Network extends Actor with ActorLogging {
 
     case BindEntity(entity) =>
       nodes += entity
-      log.debug(s"register: $entity")
+      //log.debug(s"register: $entity")
 
     case Simulate(duration, resolution, termination) =>
       tickAcks = 0

@@ -1,7 +1,7 @@
 package taranis.models.neurons
 
 import taranis.core.events.Spike
-import taranis.core.{Neuron, Forge, Time}
+import taranis.core.{Forge, Neuron, Time}
 import taranis.models.neurons.IafPscDeltaNeuron.withParams
 
 import scala.math.exp
@@ -59,21 +59,24 @@ class IafPscDeltaNeuron(params: withParams) extends Neuron {
     y3 + EL
 
   override def calibrate(resolution: Time): Unit = {
+    super.calibrate(resolution)
+
     h = resolution
-    P33 = exp( -h / tauM )
-    P30 = 1 / Cm * ( 1 - P33 ) * tauM
+    P33 = exp(-h / tauM)
+    P30 = 1 / Cm * (1 - P33) * tauM
     refractoryCounts = (tRef / resolution).toInt
   }
 
   override def update(time: Time): Unit = {
+    super.update(time)
 
     val spikesSum = events(time).foldLeft(0.0) {
-      case (sum, Spike(_, _, w)) => sum + w * 10
+      case (sum, Spike(_, _, w)) => sum + w
       case (sum, _) => sum
     }
 
     if (r == 0) {
-      y3 = P30 * ( y0 + Ie ) + P33 * y3 + spikesSum
+      y3 = P30 * (y0 + Ie) + P33 * y3 + spikesSum
 
       if (withRefrInput && refrspikesbuffer != 0.0) {
         y3 += refrspikesbuffer

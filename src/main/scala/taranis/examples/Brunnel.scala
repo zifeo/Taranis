@@ -1,5 +1,7 @@
 package taranis.examples
 
+import java.awt.Color
+
 import breeze.plot._
 import taranis.dsl._
 import taranis.models.devices._
@@ -10,6 +12,8 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 
 object Brunnel extends App {
+
+  val startBuild = System.nanoTime()
 
   val dt      = 1 millisecond // the resolution in ms
   val simtime = 1000 milliseconds // Simulation time in ms
@@ -73,26 +77,33 @@ object Brunnel extends App {
   connect(nodes_ex, nodes_ex ++ nodes_in, excitatory, mapping = CE)
   connect(nodes_in, nodes_ex ++ nodes_in, inhibitory, mapping = CI)
 
+  val endBuild = System.nanoTime()
+
   simulate(simtime, dt)
 
-  val events_ex = data(espikes)("spikes")
-  val (xs, ys) = events_ex.unzip
-  val eventsCount = events_ex.size
-  println(s"events: $eventsCount")
+  val endSimulate = System.nanoTime()
 
+  val measureBuildTime = (endBuild - startBuild) / 1e9
+  val measureSimtime = (endSimulate - endBuild) / 1e9
+
+  println(s"Building time: $measureBuildTime")
+  println(s"Simulation time: $measureSimtime")
+
+  val events_ex = data(espikes)("spikes")
+  val selected = events_ex.map(_._2).distinct.take(50).zipWithIndex.toMap
+  val selection = events_ex.flatMap { case (spikeTime, nid) =>
+    selected.get(nid).map(spikeTime -> _.toDouble)
+  }
+  val (xs, ys) = selection.unzip
   val f = Figure()
+
   val p1 = f.subplot(2, 1, 0)
-  val p2 = f.subplot(2, 1, 1)
-  /*p.xlabel = "Time (ms)"
-  p.ylabel = "Membrane potential (mV)"
-  p.legend = true
-  p.title = "Membrane potential"
-  p.xlim = (0, 100)
-  p.ylim = (-70, -69.3)
-  p.setYAxisDecimalTickUnits()*/
-  p1 += scatter(xs, ys, _ => 1)
+  p1.ylabel = "Neuron ID"
+  p1 += scatter(xs, ys, _ => 2, _ => Color.BLUE)
   p1.xaxis.setVisible(false)
-  p2 += hist(xs, bins = simtime.toMillis.toInt)
+
+  val p2 = f.subplot(2, 1, 1)
+  p2 += hist(xs, bins = simtime.toMillis.toInt / 5)
   p2.xlabel = "Time (ms)"
   p2.ylabel = "Rate (hz)"
 

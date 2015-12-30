@@ -11,7 +11,7 @@ import scala.collection.mutable
 trait EventsHub extends Entity {
 
   private val priors = mutable.AnyRefMap.empty[ActorRef, EventDynamics]
-  private val successors = mutable.AnyRefMap.empty[ActorRef, EventDynamics]
+  protected val successors = mutable.AnyRefMap.empty[ActorRef, EventDynamics]
   private var eventsBuffer = mutable.ListBuffer.empty[Event]
 
   abstract override def receive: Receive = {

@@ -2,7 +2,7 @@ package taranis.models.devices
 
 import breeze.stats.distributions.Poisson
 import taranis.core.events.Spike
-import taranis.core.{Neuron, Forge, Time}
+import taranis.core.{Forge, Neuron, Time}
 import taranis.models.devices.PoissonGenerator.withParams
 
 object PoissonGenerator {
@@ -37,12 +37,11 @@ final class PoissonGenerator(params: withParams) extends Neuron {
 
   override def update(time: Time): Unit = {
     if (rate > 0 && time >= start && time < stop) {
-
-      val spikeCount = poisson.sample()
-
-      if (spikeCount > 0)
-        send(Spike(time = time, delay = 1, weight = spikeCount))
-
+      successors.foreach { case (successor, dynamic) =>
+        val spikeCount = poisson.sample()
+        if (spikeCount > 0)
+          successor ! dynamic.handle(Spike(time = time, delay = 1, weight = spikeCount))
+      }
     }
   }
 
