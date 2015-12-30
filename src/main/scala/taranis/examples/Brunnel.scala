@@ -23,7 +23,7 @@ object Brunnel extends App {
   val eta     = 2.0 // external rate relative to threshold rate
   val epsilon = 0.1 // connection probability
 
-  val order     = 250
+  val order     = 2500
   val NE        = 4 * order // number of excitatory neurons
   val NI        = 1 * order // number of inhibitory neurons
   val N_neurons = NE + NI // number of neurons in total
@@ -106,5 +106,8 @@ object Brunnel extends App {
   p2 += hist(xs, bins = simtime.toMillis.toInt / 5)
   p2.xlabel = "Time (ms)"
   p2.ylabel = "Rate (hz)"
+
+  //noGUI(p1)
+  //noGUI(p2)
 
 }

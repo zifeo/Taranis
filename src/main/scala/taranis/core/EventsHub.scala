@@ -6,19 +6,21 @@ import taranis.core.dynamics.{Dynamics, EventDynamics}
 import taranis.core.events.Event
 
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /** Mix-in for recording data out of [[Dynamics]]. */
 trait EventsHub extends Entity {
 
   private val priors = mutable.AnyRefMap.empty[ActorRef, EventDynamics]
   protected val successors = mutable.AnyRefMap.empty[ActorRef, EventDynamics]
-  private var eventsBuffer = mutable.ListBuffer.empty[Event]
+  private var eventsBuffer = mutable.ArrayBuffer.empty[Event]
 
   abstract override def receive: Receive = {
 
     val receiveEvent = { case event: Event =>
-      if (priors.contains(sender))
-        eventsBuffer += priors(sender).handle(event)
+      eventsBuffer += event
+      //if (priors.contains(sender))
+      //  eventsBuffer += priors(sender).handle(event)
     }: Receive
 
     val manageDynamics = {
@@ -33,14 +35,14 @@ trait EventsHub extends Entity {
   }
 
   abstract override def calibrate(resolution: Time): Unit = {
-    priors.foreachValue(_.calibrate(resolution))
+    //priors.foreachValue(_.calibrate(resolution))
     successors.foreachValue(_.calibrate(resolution))
     super.calibrate(resolution)
   }
 
   abstract override def update(time: Time): Unit = {
-    priors.foreachValue(_.update(time))
-    successors.foreachValue(_.update(time))
+    //priors.foreachValue(_.update(time))
+    //successors.foreachValue(_.update(time))
     super.update(time)
   }
 
@@ -48,13 +50,13 @@ trait EventsHub extends Entity {
     successors.foreach { case (successor, dynamic) =>
       successor ! dynamic.handle(event)
     }
-    val info = event.informative
-    priors.foreach { case (prior, dynamic) =>
-      prior ! info
-    }
+    //val info = event.informative
+    //priors.foreach { case (prior, dynamic) =>
+    //  prior ! info
+    //}
   }
 
-  protected def events(until: Time): List[Event] = {
+  protected def events(until: Time): ArrayBuffer[Event] = {
     val (past, future) = eventsBuffer.partition(_.delivery <= until)
     eventsBuffer = future
     past.result()
