@@ -110,4 +110,6 @@ object Brunnel extends App {
   //noGUI(p1)
   //noGUI(p2)
 
+  terminate()
+
 }

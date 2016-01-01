@@ -58,7 +58,7 @@ package object dsl {
     rec(0, List.empty)
   }
 
-  def connectD(pre: ActorRef, post: ActorRef): Unit =
+  def connectDevice(pre: ActorRef, post: ActorRef): Unit =
     pre ! BindRecorder(post)
 
   def connect(pre: ActorRef, post: ActorRef): Unit =

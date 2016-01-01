@@ -7,7 +7,8 @@ import taranis.models.devices.PoissonGenerator.withParams
 
 object PoissonGenerator {
 
-  /**
+  /** Rewritten from NEST under GNU General Public License 2 or later:
+    * http://www.nest-simulator.org
     *
     * @param rate process rate in Hz
     * @param start begin of device application with resp. to origin in ms

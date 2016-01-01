@@ -22,7 +22,7 @@ object TwoNeurons extends App {
   ))
 
   connect(neuron1, neuron2, StaticSynapse.withParams(weight = weight, delay = delay))
-  connectD(multimeter, neuron2)
+  connectDevice(multimeter, neuron2)
 
   simulate(100 milliseconds, 1 millisecond)
 

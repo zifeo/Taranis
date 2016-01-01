@@ -9,9 +9,9 @@ import scala.collection.mutable
 
 object SpikeDetector {
 
-  case class withParams() extends Forge[SpikeDetector]
-
   object default extends withParams
+
+  case class withParams() extends Forge[SpikeDetector]
 
 }
 

@@ -8,7 +8,8 @@ import scala.math.exp
 
 object IafPscDeltaNeuron {
 
-  /**
+  /** Rewritten from NEST under GNU General Public License 2 or later:
+    * http://www.nest-simulator.org
     *
     * @param tauM Membrane time constant in ms.
     * @param Cm Membrane capacitance in pF.

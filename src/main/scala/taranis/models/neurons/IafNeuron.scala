@@ -9,7 +9,9 @@ import scala.math.{abs, exp}
 
 object IafNeuron {
 
-  /**
+  /** Rewritten from NEST under GNU General Public License 2 or later:
+    * http://www.nest-simulator.org
+    *
     * @param C membrane capacitance in pF
     * @param tau membrane time constant in ms
     * @param tauSyn time constant of synaptic current in ms

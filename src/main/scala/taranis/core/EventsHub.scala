@@ -19,8 +19,8 @@ trait EventsHub extends Entity {
 
     val receiveEvent = { case event: Event =>
       eventsBuffer += event
-      //if (priors.contains(sender))
-      //  eventsBuffer += priors(sender).handle(event)
+      if (priors.contains(sender))
+        eventsBuffer += priors(sender).handle(event)
     }: Receive
 
     val manageDynamics = {
@@ -35,14 +35,14 @@ trait EventsHub extends Entity {
   }
 
   abstract override def calibrate(resolution: Time): Unit = {
-    //priors.foreachValue(_.calibrate(resolution))
+    priors.foreachValue(_.calibrate(resolution))
     successors.foreachValue(_.calibrate(resolution))
     super.calibrate(resolution)
   }
 
   abstract override def update(time: Time): Unit = {
-    //priors.foreachValue(_.update(time))
-    //successors.foreachValue(_.update(time))
+    priors.foreachValue(_.update(time))
+    successors.foreachValue(_.update(time))
     super.update(time)
   }
 
@@ -50,10 +50,10 @@ trait EventsHub extends Entity {
     successors.foreach { case (successor, dynamic) =>
       successor ! dynamic.handle(event)
     }
-    //val info = event.informative
-    //priors.foreach { case (prior, dynamic) =>
-    //  prior ! info
-    //}
+    val info = event.informative
+    priors.foreach { case (prior, dynamic) =>
+      prior ! info
+    }
   }
 
   protected def events(until: Time): ArrayBuffer[Event] = {
