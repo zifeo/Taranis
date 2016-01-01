@@ -11,12 +11,21 @@ The small differences come from the fact the delay is not managed the same way a
 
 NEST:
 
+![](./plots/nest-two-neurons.png)
 
-
+![](./plots/nest-brunnel.png)
 
 Taranis:
 
+![](./plots/taranis-two-neurons.png)
 
+![](./plots/taranis-brunnel.png)
+
+### Performance
+
+After some light and fast-profiling, it seems that JVM garbage collector is tough to overcome.
+
+![](./plots/nest-taranis.png)
 
 ### License
 

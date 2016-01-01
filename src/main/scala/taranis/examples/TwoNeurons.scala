@@ -9,6 +9,10 @@ import taranis.models.synapses._
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
+/** Rewritten from NEST under GNU General Public License 2 or later:
+  * http://www.nest-simulator.org
+  * http://www.nest-simulator.org/py_sample/two-neurons/
+  */
 object TwoNeurons extends App {
 
   val weight = 20.0
